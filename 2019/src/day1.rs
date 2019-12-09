@@ -1,12 +1,12 @@
-use crate::loader::from;
+use crate::loader::lines_from;
 
 pub fn part1() -> i32 {
-    let modules_mass = from(module_path!());
+    let modules_mass = lines_from(module_path!());
     modules_fuel(modules_mass)
 }
 
 pub fn part2() -> i32 {
-    let modules_mass = from(module_path!());
+    let modules_mass = lines_from(module_path!());
 
     modules_mass.iter()
     .map(|s| s.parse::<i32>().unwrap())
