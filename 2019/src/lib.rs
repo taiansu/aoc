@@ -9,7 +9,11 @@ mod tests {
 
     #[test]
     fn day1() {
-        day1::exec();
+        let result = day1::part1();
+        println!("{:?}", result);
+
+        let result2 = day1::part2();
+        println!("{:?}", result2);
 
         assert!(true);
     }
