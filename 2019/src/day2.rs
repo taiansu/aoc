@@ -4,10 +4,10 @@ pub fn part1() -> i32 {
     let mut opcodes = vec_from(module_path!());
     opcodes[1] = 12;
     opcodes[2] = 2;
-    computer(opcodes)
+    compute(opcodes)
 }
 
-fn computer(input: Vec<i32>) -> i32 {
+fn compute(input: Vec<i32>) -> i32 {
     let mut memory = input;
     let mut current_ptr = 0;
 
