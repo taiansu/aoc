@@ -7,6 +7,23 @@ pub fn part1() -> i32 {
     compute(opcodes)
 }
 
+pub fn part2() -> Option<i32>  {
+    let ori_opcodes = vec_from(module_path!());
+
+    for i in 0..99 {
+        for j in 0..99 {
+            let mut opcodes = ori_opcodes.to_owned();
+            opcodes[1] = i;
+            opcodes[2] = j;
+            if compute(opcodes) == 19_690_720 {
+                return Some(i * 100 + j)
+            }
+        }
+    }
+
+    None
+}
+
 fn compute(input: Vec<i32>) -> i32 {
     let mut memory = input;
     let mut current_ptr = 0;

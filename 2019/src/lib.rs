@@ -22,7 +22,7 @@ mod tests {
 
     #[test]
     fn day2() {
-        let result = day2::part1();
+        let result = day2::part2();
         println!("{:?}", result);
     }
 }
