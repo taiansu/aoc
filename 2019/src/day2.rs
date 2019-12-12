@@ -1,14 +1,14 @@
-use crate::loader::vec_from;
+use crate::loader::read_priv;
 
 pub fn part1() -> i32 {
-    let mut opcodes = vec_from(module_path!());
+    let mut opcodes = input_vec();
     opcodes[1] = 12;
     opcodes[2] = 2;
     compute(opcodes)
 }
 
 pub fn part2() -> Option<i32>  {
-    let ori_opcodes = vec_from(module_path!());
+    let ori_opcodes = input_vec();
 
     for i in 0..99 {
         for j in 0..99 {
@@ -46,4 +46,9 @@ fn compute(input: Vec<i32>) -> i32 {
     }
 
     memory[0]
+}
+
+fn input_vec() -> Vec<i32> {
+    let content = read_priv(module_path!());
+    content.trim_end().split(",").map(|s| s.parse::<i32>().unwrap()).collect()
 }
