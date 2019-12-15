@@ -7,20 +7,22 @@ pub fn part1() -> i32 {
     compute(opcodes)
 }
 
-pub fn part2() -> Option<i32>  {
+pub fn part2() -> i32 {
     let ori_opcodes = input_vec();
+    find_result(ori_opcodes, 19_690_720).unwrap_or(0)
+}
 
+fn find_result(opcodes: Vec<i32>, result: i32) -> Option<i32> {
     for i in 0..99 {
         for j in 0..99 {
-            let mut opcodes = ori_opcodes.to_owned();
+            let mut opcodes = opcodes.to_owned();
             opcodes[1] = i;
             opcodes[2] = j;
-            if compute(opcodes) == 19_690_720 {
-                return Some(i * 100 + j)
+            if compute(opcodes) == result {
+                return Some(i * 100 + j);
             }
         }
-    }
-
+    };
     None
 }
 

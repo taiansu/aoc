@@ -21,16 +21,18 @@ mod tests {
         assert!(true);
     }
 
-    #[ignore]
     #[test]
     fn day2() {
-        let result = day2::part2();
-        println!("{:?}", result);
+        let result = day2::part1();
+        println!("day2::part1 => {:?}", result);
+
+        let result2 = day2::part2();
+        println!("day2::part2 => {:?}", result2);
     }
 
     #[test]
     fn day3() {
         let result = day3::part1();
-        println!("{:?}", result);
+        println!("day3::part1 => {:?}", result);
     }
 }
