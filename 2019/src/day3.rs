@@ -27,13 +27,13 @@ pub fn part1() -> i32 {
 
 fn intersections(wire1: &Vec<Segment>, wire2: &Vec<Segment>) -> Vec<Point> {
     wire1.iter()
-         .flat_map(|seg1| intersection_on(wire2, seg1))
+         .flat_map(|seg1| intersect_with(wire2, seg1))
          .filter(|opt| opt.is_some())
          .map(|opt| opt.unwrap())
          .collect()
 }
 
-fn intersection_on(wire: &Vec<Segment>, seg: &Segment) -> Vec<Option<Point>> {
+fn intersect_with(wire: &Vec<Segment>, seg: &Segment) -> Vec<Option<Point>> {
     wire.iter().map(|seg2| intersection(seg, seg2)).collect()
 }
 

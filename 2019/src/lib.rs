@@ -1,5 +1,4 @@
 #![allow(dead_code)]
-
 mod loader;
 mod day1;
 mod day2;
@@ -9,9 +8,8 @@ mod day3;
 mod tests {
     use super::*;
 
-    #[ignore]
     #[test]
-    fn day1() {
+    fn aoc201901() {
         let result = day1::part1();
         println!("{:?}", result);
 
@@ -22,7 +20,7 @@ mod tests {
     }
 
     #[test]
-    fn day2() {
+    fn aoc201902() {
         let result = day2::part1();
         println!("day2::part1 => {:?}", result);
 
@@ -31,7 +29,7 @@ mod tests {
     }
 
     #[test]
-    fn day3() {
+    fn aoc201903() {
         let result = day3::part1();
         println!("day3::part1 => {:?}", result);
     }
