@@ -3,6 +3,7 @@
 mod loader;
 mod day1;
 mod day2;
+mod day3;
 
 #[cfg(test)]
 mod tests {
@@ -20,9 +21,16 @@ mod tests {
         assert!(true);
     }
 
+    #[ignore]
     #[test]
     fn day2() {
         let result = day2::part2();
+        println!("{:?}", result);
+    }
+
+    #[test]
+    fn day3() {
+        let result = day3::part1();
         println!("{:?}", result);
     }
 }
