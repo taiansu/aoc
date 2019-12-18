@@ -21,8 +21,8 @@ struct Segment {
 }
 
 pub fn part1() -> i32 {
-    let wires: Vec<Vec<Segment>> = input_wires().iter().map(self::segments).collect();
-    intersections(&wires[0], &wires[1]).iter().map(self::manhatten).min().unwrap_or(0)
+    let wires: Vec<Vec<Segment>> = input_wires().iter().map(segments).collect();
+    intersections(&wires[0], &wires[1]).iter().map(manhatten).min().unwrap_or(0)
 }
 
 fn intersections(wire1: &Vec<Segment>, wire2: &Vec<Segment>) -> Vec<Point> {
@@ -92,11 +92,11 @@ fn mv(start: Point, step: &Step) -> Point {
 }
 
 fn input_wires() -> Vec<Vec<Step>> {
-    read_priv(module_path!()).trim_end().split("\n").map(self::parse_wire).collect()
+    read_priv(module_path!()).trim_end().split("\n").map(parse_wire).collect()
 }
 
 fn parse_wire(ws: &str) -> Vec<Step> {
-    ws.split(",").map(|w| w.to_string()).map(self::parse_step).collect()
+    ws.split(",").map(|w| w.to_string()).map(parse_step).collect()
 }
 
 fn parse_step(step: String) -> Step {
