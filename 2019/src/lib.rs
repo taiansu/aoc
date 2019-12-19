@@ -32,5 +32,8 @@ mod tests {
     fn aoc201903() {
         let result = day3::part1();
         println!("day3::part1 => {:?}", result);
+
+        let result2 = day3::part2();
+        println!("day3::part2 => {:?}", result2);
     }
 }

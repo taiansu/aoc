@@ -1,3 +1,6 @@
+use std::mem::swap;
+use std::collections::HashMap;
+use itertools::Itertools;
 use crate::loader::read_priv;
 
 #[derive(PartialEq, Clone, Debug)]
@@ -6,8 +9,14 @@ enum Axis { X, Y }
 #[derive(PartialEq, Clone, Debug)]
 enum Direction { Left, Right, Up, Down }
 
-#[derive(Clone, Debug)]
+#[derive(PartialEq, Eq, Hash, Clone, Debug)]
 struct Point(i32, i32);
+
+impl Point {
+    fn swap(&mut self) {
+        swap(&mut self.0, &mut self.1);
+    }
+}
 
 #[derive(Clone, Debug)]
 struct Step(Direction, i32);
@@ -23,6 +32,44 @@ struct Segment {
 pub fn part1() -> i32 {
     let wires: Vec<Vec<Segment>> = input_wires().iter().map(segments).collect();
     intersections(&wires[0], &wires[1]).iter().map(manhatten).min().unwrap_or(0)
+}
+
+pub fn part2() -> () {
+    let wires: Vec<Vec<Segment>> = input_wires().iter().map(segments).collect();
+    let wire_steps_0 = wire_steps(&wires[0]);
+    println!("{:?}", wire_steps_0);
+    let wire_steps_1 = wire_steps(&wires[1]);
+}
+
+// fn wire_steps(wire: &Vec<Segment>) -> HashMap<Point, i32> {
+fn wire_steps(wire: &Vec<Segment>) -> HashMap<usize, Point> {
+    let z: Vec<(usize, Point)> = wire.iter()
+        .flat_map(segment_steps)
+        .enumerate()
+        // .map(|(u, p)|
+        //     (u, p)
+        // )
+        // .map(|(u, p)| (p, (u + 1) as i32) )
+        .unique_by(|(_u, p)| p.clone())
+        // .sorted_by(|(_p1, i1), (_p2, i2)| Ord::cmp(i1, i2))
+        .collect();
+    for (u, p) in z.iter() {
+        println!("{}", *u as i32);
+        println!("{:?}", p);
+        println!("----------");
+    }
+
+    HashMap::new()
+}
+
+fn segment_steps<'a>(segment: &'a Segment) -> impl Iterator<Item=Point> + 'a {
+    (segment.from..segment.to).map(move |i| get_point(segment, i)) // Rust range is open ended
+}
+
+fn get_point(segment: &Segment, i: i32) -> Point {
+    let mut pt = Point(segment.at, i);
+    if segment.axis == Axis::X { pt.swap() }
+    pt
 }
 
 fn intersections(wire1: &Vec<Segment>, wire2: &Vec<Segment>) -> Vec<Point> {
