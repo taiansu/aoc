@@ -54,3 +54,11 @@ fn input_vec() -> Vec<i32> {
     let content = read_priv(module_path!());
     content.trim_end().split(",").map(|s| s.parse::<i32>().unwrap()).collect()
 }
+
+fn main() {
+    let result = part1();
+    println!("day2::part1 => {:?}", result);
+
+    let result2 = part2();
+    println!("day2::part2 => {:?}", result2);
+}

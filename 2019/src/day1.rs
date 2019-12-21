@@ -41,3 +41,13 @@ fn input_lines() -> Vec<String> {
     let content = read_priv(module_path!());
     content.trim_end().split("\n").map(|s| String::from(s)).collect()
 }
+
+fn main() {
+    let result = part1();
+    println!("{:?}", result);
+
+    let result2 = part2();
+    println!("{:?}", result2);
+
+    assert!(true);
+}
