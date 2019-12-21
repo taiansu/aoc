@@ -34,41 +34,49 @@ pub fn part1() -> i32 {
     intersections(&wires[0], &wires[1]).iter().map(manhatten).min().unwrap_or(0)
 }
 
-pub fn part2() -> () {
+pub fn part2() -> usize {
     let wires: Vec<Vec<Segment>> = input_wires().iter().map(segments).collect();
     let wire_steps_0 = wire_steps(&wires[0]);
-    println!("{:?}", wire_steps_0);
     let wire_steps_1 = wire_steps(&wires[1]);
+
+    let z = intersections(&wires[0], &wires[1]);
+    println!("{:?}", z);
+
+        z.iter()
+        .map(|p| {
+            // println!("-> {:?} ", wire_steps_0.get(&p).unwrap() + wire_steps_1.get(&p).unwrap() );
+            wire_steps_0.get(&p).unwrap() + wire_steps_1.get(&p).unwrap()
+        })
+        .min()
+        .unwrap_or(0)
 }
 
 // fn wire_steps(wire: &Vec<Segment>) -> HashMap<Point, i32> {
-fn wire_steps(wire: &Vec<Segment>) -> HashMap<usize, Point> {
-    let z: Vec<(usize, Point)> = wire.iter()
+fn wire_steps(wire: &Vec<Segment>) -> HashMap<Point, usize> {
+    wire.iter()
         .flat_map(segment_steps)
         .enumerate()
-        // .map(|(u, p)|
-        //     (u, p)
-        // )
-        // .map(|(u, p)| (p, (u + 1) as i32) )
         .unique_by(|(_u, p)| p.clone())
-        // .sorted_by(|(_p1, i1), (_p2, i2)| Ord::cmp(i1, i2))
-        .collect();
-    for (u, p) in z.iter() {
-        println!("{}", *u as i32);
-        println!("{:?}", p);
-        println!("----------");
-    }
-
-    HashMap::new()
+        .map(|(u, p)| {
+            // println!("{:?}::: {:?}", p, u);
+            (p, u)
+        })
+        .collect()
 }
 
 fn segment_steps<'a>(segment: &'a Segment) -> impl Iterator<Item=Point> + 'a {
-    (segment.from..segment.to).map(move |i| get_point(segment, i)) // Rust range is open ended
+    // Rust range is open ended
+    let range: Box<dyn Iterator<Item=_>> = if segment.from <= segment.to {
+        Box::new(segment.from..segment.to)
+    } else {
+        Box::new(((segment.to + 1)..(segment.from + 1)).rev())
+    };
+    range.map(move |i| get_point(segment, i))
 }
 
 fn get_point(segment: &Segment, i: i32) -> Point {
-    let mut pt = Point(segment.at, i);
-    if segment.axis == Axis::X { pt.swap() }
+    let mut pt = Point(i, segment.at);
+    if segment.axis == Axis::Y { pt.swap() }
     pt
 }
 
@@ -85,8 +93,8 @@ fn intersect_with(wire: &Vec<Segment>, seg: &Segment) -> Vec<Option<Point>> {
 }
 
 fn intersection(seg1: &Segment, seg2: &Segment) -> Option<Point>{
-    if seg1.axis != seg2.axis && (seg1.from..seg1.to).contains(&seg2.at) && (seg2.from..seg2.to).contains(&seg1.at) {
-        let point: Point = if seg1.axis == Axis::X { Point(seg1.at, seg2.at) } else { Point(seg2.at, seg1.at) };
+    if seg1.axis != seg2.axis && (seg1.from <= seg2.at && seg2.at <= seg1.to) && (seg2.from <= seg1.at && seg1.at <= seg2.to) {
+        let point: Point = if seg1.axis == Axis::X { Point(seg2.at, seg1.at) } else { Point(seg1.at, seg2.at) };
         Some(point)
     } else {
         None
