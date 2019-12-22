@@ -1,6 +1,6 @@
 use std::fs;
 use std::collections::HashSet;
-// use itertools::Itertools;
+use itertools::Itertools;
 
 fn main() {
     let raw_contents = fs::read_to_string("./priv/2019/day3.in").expect("Error reading the file.");
@@ -10,9 +10,13 @@ fn main() {
     let w2: Path = parse_path(contents[1]);
 
     let intersections = find_intersections(w1.clone(), w2.clone());
+    // println!("intersections: {:?}", intersections);
 
-    let min_distance = closest_intersection(intersections);
+    let min_distance = closest_distance(intersections.clone());
     println!("Day3 part1: {}", min_distance);
+
+    let cheapest = cheapest_intersection(intersections, w1, w2);
+    println!("Day3 part2: {}", cheapest);
 }
 
 
@@ -30,7 +34,18 @@ type Path = Vec<Point>;
 #[derive(Debug, PartialEq)]
 enum Direction { Up, Down, Left, Right, Invalid }
 
-fn closest_intersection(path: Path) -> isize {
+fn cheapest_intersection(intersections: Path, p1: Vec<Point>, p2: Vec<Point>) -> usize {
+    intersections.iter().filter(|p| !p.is_zero()).fold(0, |min, &Point(current_x, current_y)| {
+        let steps_p1 = p1.iter().position(|&Point(x, y)| current_x == x && current_y == y).unwrap();
+        let steps_p2 = p2.iter().position(|&Point(x, y)| current_x == x && current_y == y).unwrap();
+
+        let cost = steps_p1 + steps_p2;
+
+        if cost < min || min == 0 { cost } else { min }
+    })
+}
+
+fn closest_distance(path: Path) -> isize {
     path.iter().filter(|&p| !p.is_zero()).fold(1_000_000, |distance, &Point(x, y)| {
         let d = x.abs() + y.abs();
         if d < distance { d } else { distance }
@@ -40,7 +55,7 @@ fn closest_intersection(path: Path) -> isize {
 fn find_intersections(p1: Vec<Point>, p2: Vec<Point>) -> Vec<Point> {
     let h1: HashSet<Point> = p1.into_iter().collect();
     let h2: HashSet<Point> = p2.into_iter().collect();
-    h1.intersection(&h2).cloned().collect()
+    h1.intersection(&h2).sorted().cloned().collect()
 }
 
 fn parse_path(path_str: &str) -> Vec<Point> {
@@ -84,6 +99,14 @@ fn parse_step(step: &str) -> (Direction, isize) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn cheapest_intersection_pass() {
+        let p1 = parse_path("R75,D30,R83,U83,L12,D49,R71,U7,L72");
+        let p2 = parse_path("U62,R66,U55,R34,D71,R55,D58,R83");
+        let intersections = find_intersections(p1.clone(), p2.clone());
+        assert_eq!(cheapest_intersection(intersections, p1, p2), 610)
+    }
 
     #[test]
     fn find_intersections_pass() {
