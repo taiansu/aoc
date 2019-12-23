@@ -5,6 +5,9 @@ fn main() {
     let input = "108457-562041";
     let part1 = parse_range(&input).map(to_digits).filter(is_increase).filter(has_duplicate).collect::<Vec<_>>().len();
     println!("Day4 part1 => {:?}", part1);
+
+    let part2 = parse_range(&input).map(to_digits).filter(is_increase).filter(has_exactly_two_same_adjacent).collect::<Vec<_>>().len();
+    println!("Day4 part2 => {:?}", part2);
 }
 
 fn parse_range(input: &str) -> RangeInclusive<usize> {
@@ -22,6 +25,10 @@ fn is_increase(nums: &Vec<u8>) -> bool {
 
 fn has_duplicate(nums: &Vec<u8>) -> bool {
     nums.iter().group_by(|i| *i).into_iter().map(|(_k, v)| v.cloned().collect::<Vec<u8>>().len()).any(|count| count > 1)
+}
+
+fn has_exactly_two_same_adjacent(nums: &Vec<u8>) -> bool {
+    nums.iter().group_by(|i| *i).into_iter().map(|(_k, v)| v.cloned().collect::<Vec<u8>>().len()).any(|count| count == 2)
 }
 
 
@@ -72,6 +79,19 @@ mod tests {
         assert_eq!(
             has_duplicate(vec![1, 2, 3].as_ref()),
             false
+        );
+    }
+
+    #[test]
+    fn has_exactly_two_same_adjacent_pass() {
+        assert_eq!(
+            has_exactly_two_same_adjacent(vec![1, 2, 2, 2, 3].as_ref()),
+            false
+        );
+
+        assert_eq!(
+            has_exactly_two_same_adjacent(vec![1, 1, 1, 1, 2, 2].as_ref()),
+            true
         );
     }
 }
