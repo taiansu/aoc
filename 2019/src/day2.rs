@@ -1,16 +1,4 @@
-use crate::loader::read_priv;
-
-pub fn part1() -> i32 {
-    let mut opcodes = input_vec();
-    opcodes[1] = 12;
-    opcodes[2] = 2;
-    compute(opcodes)
-}
-
-pub fn part2() -> i32 {
-    let ori_opcodes = input_vec();
-    find_result(ori_opcodes, 19_690_720).unwrap_or(0)
-}
+use std:: fs;
 
 fn find_result(opcodes: Vec<i32>, result: i32) -> Option<i32> {
     for i in 0..99 {
@@ -51,14 +39,18 @@ fn compute(input: Vec<i32>) -> i32 {
 }
 
 fn input_vec() -> Vec<i32> {
-    let content = read_priv(module_path!());
-    content.trim_end().split(",").map(|s| s.parse::<i32>().unwrap()).collect()
+    let raw_contents = fs::read_to_string("./priv/2019/day2.in").expect("Error reading the file.");
+    raw_contents.trim_end().split(",").map(|s| s.parse::<i32>().unwrap()).collect()
 }
 
 fn main() {
-    let result = part1();
-    println!("day2::part1 => {:?}", result);
+    let opcodes = input_vec();
+    let mut opcodes_1 = opcodes.clone();
+    opcodes_1[1] = 12;
+    opcodes_1[2] = 2;
+    let part1 = compute(opcodes_1);
+    println!("day2::part1 => {:?}", part1);
 
-    let result2 = part2();
-    println!("day2::part2 => {:?}", result2);
+    let day2 = find_result(opcodes, 19_690_720).unwrap_or(0);
+    println!("day2::part2 => {:?}", day2);
 }

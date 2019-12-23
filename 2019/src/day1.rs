@@ -1,23 +1,9 @@
-use crate::loader::read_priv;
+use std::fs;
 
-pub fn part1() -> i32 {
-    let modules_mass = input_lines();
-    modules_fuel(modules_mass)
-}
-
-pub fn part2() -> i32 {
-    let modules_mass = input_lines();
-
+pub fn recursive_fuel(modules_mass: Vec<String>) -> i32 {
     modules_mass.iter()
     .map(|s| s.parse::<i32>().unwrap())
     .flat_map(|i| dependent_calc(i))
-    .sum()
-}
-
-fn modules_fuel(modules_mass: Vec<String>) -> i32 {
-    modules_mass.iter()
-    .map(|s| s.parse::<i32>().unwrap())
-    .map(|i| calc(i))
     .sum()
 }
 
@@ -33,21 +19,28 @@ fn dependent_calc(mass: i32) -> Vec<i32> {
     total_fuel
 }
 
+fn modules_fuel(modules_mass: Vec<String>) -> i32 {
+    modules_mass.iter()
+    .map(|s| s.parse::<i32>().unwrap())
+    .map(|i| calc(i))
+    .sum()
+}
+
 fn calc(num: i32) -> i32 {
     (num as f32 / 3.0).floor() as i32 - 2
 }
 
 fn input_lines() -> Vec<String> {
-    let content = read_priv(module_path!());
-    content.trim_end().split("\n").map(|s| String::from(s)).collect()
+    let raw_contents = fs::read_to_string("./priv/2019/day1.in").expect("Error reading the file.");
+    raw_contents.trim_end().split("\n").map(|s| String::from(s)).collect()
 }
 
 fn main() {
-    let result = part1();
-    println!("{:?}", result);
+    let modules_mass = input_lines();
 
-    let result2 = part2();
-    println!("{:?}", result2);
+    let part1 = modules_fuel(modules_mass.clone());
+    println!("{:?}", part1);
 
-    assert!(true);
+    let part2 = recursive_fuel(modules_mass.clone());
+    println!("{:?}", part2);
 }
