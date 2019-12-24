@@ -3,10 +3,10 @@ use itertools::Itertools;
 
 fn main() {
     let input = "108457-562041";
-    let part1 = parse_range(&input).map(to_digits).filter(is_increase).filter(has_duplicate).collect::<Vec<_>>().len();
+    let part1 = count_by_rule(&input, Box::new(has_duplicate));
     println!("Day4 part1 => {:?}", part1);
 
-    let part2 = parse_range(&input).map(to_digits).filter(is_increase).filter(has_exactly_two_same_adjacent).collect::<Vec<_>>().len();
+    let part2 = count_by_rule(&input, Box::new(has_exactly_two_same_adjacent));
     println!("Day4 part2 => {:?}", part2);
 }
 
@@ -23,12 +23,20 @@ fn is_increase(nums: &Vec<u8>) -> bool {
     nums.iter().zip(nums.iter().skip(1)).all(|(prev, next)| prev <= next)
 }
 
+fn to_len_of_number(nums: &Vec<u8>) -> impl Itertools<Item=usize> {
+    nums.iter().group_by(|i| *i).into_iter().map(|(_k, v)| v.collect::<Vec<_>>().len()).collect::<Vec<_>>().into_iter()
+}
+
 fn has_duplicate(nums: &Vec<u8>) -> bool {
-    nums.iter().group_by(|i| *i).into_iter().map(|(_k, v)| v.cloned().collect::<Vec<u8>>().len()).any(|count| count > 1)
+    to_len_of_number(nums).any(|count| count > 1)
 }
 
 fn has_exactly_two_same_adjacent(nums: &Vec<u8>) -> bool {
-    nums.iter().group_by(|i| *i).into_iter().map(|(_k, v)| v.cloned().collect::<Vec<u8>>().len()).any(|count| count == 2)
+    to_len_of_number(nums).any(|count| count == 2)
+}
+
+fn count_by_rule(input: &str, constraints: Box<dyn Fn(&Vec<u8>) -> bool>) -> usize {
+    parse_range(input).map(to_digits).filter(is_increase).filter(constraints).collect::<Vec<_>>().len()
 }
 
 
