@@ -1,0 +1,61 @@
+@layer utilities {
+  /* A set of reusable classes */
+
+  .bg-editor {
+    background-color: #282c34;
+  }
+
+  .text-editor {
+    color: #abb2bf;
+  }
+
+  .font-editor {
+    font-family: "JetBrains Mono", "Droid Sans Mono", "monospace";
+    font-size: 14px;
+  }
+
+  .shadow-xl-center {
+    box-shadow: 0 0 25px -5px rgba(0, 0, 0, 0.1),
+      0 0 10px -5px rgba(0, 0, 0, 0.04);
+  }
+
+  .shadow-custom-1 {
+    box-shadow: 10px 5px 25px -8px rgba(0, 0, 0, 0.2);
+  }
+
+  .flip-horizontally {
+    transform: scaleY(-1);
+  }
+
+  .scroll-smooth {
+    scroll-behavior: smooth;
+  }
+
+  /* Animations */
+
+  .fade-in {
+    animation: fade-in-frames 200ms;
+  }
+
+  .fade-out {
+    animation: fade-out-frames 200ms;
+  }
+
+  @keyframes fade-in-frames {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes fade-out-frames {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+}

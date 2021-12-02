@@ -1,0 +1,208 @@
+# Fun with VM introspection
+
+## Introduction
+
+In this notebook we manually establish connection to a running node,
+and then we try to retrieve and plot some interesting information
+about the system.
+
+## Setup
+
+We are definitely gonna plot some data in this notebook,
+so let's add `:vega_lite` and `:kino` for that.
+
+```elixir
+Mix.install([
+  {:vega_lite, "~> 0.1.2"},
+  {:kino, "~> 0.3.1", github: "livebook-dev/kino"}
+])
+```
+
+```elixir
+alias VegaLite, as: Vl
+```
+
+## Connecting to a remote node
+
+The first thing we need is a separate Elixir node. In practice,
+you would start an external Elixir system, such as by running the
+following in your production app:
+
+```
+iex --name my_app@IP -S mix TASK
+```
+
+Or by connecting to a production node assembled via
+[`mix release`](https://hexdocs.pm/mix/Mix.Tasks.Release.html).
+
+For convenience, however, you can simply start [a new notebook](/explore/notebooks/new),
+since Livebook automatically starts each notebook as a remote node.
+
+Once you start a new notebook, you can find its node name and
+cookie by running the following inside an Elixir cell:
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+IO.puts node()
+IO.puts Node.get_cookie()
+```
+
+Now, paste these in the inputs below:
+
+```elixir
+node_input = Kino.Input.text("Node")
+```
+
+```elixir
+cookie_input = Kino.Input.text("Cookie")
+```
+
+And now execute the code cell below, which will read the inputs,
+configure the cookie, and connect to the other notebook:
+
+```elixir
+node =
+  node_input
+  |> Kino.Input.read()
+  |> String.to_atom()
+
+cookie =
+  cookie_input
+  |> Kino.Input.read()
+  |> String.to_atom()
+
+Node.set_cookie(node, cookie)
+true = Node.connect(node)
+```
+
+Having successfully connected, let's try spawning a process
+on the remote node!
+
+```elixir
+Node.spawn(node, fn ->
+  IO.inspect(node())
+end)
+```
+
+From the result of `node/1` it's clear that the function was evaluated
+remotely, but note that we still get the standard output back.
+
+## Inspecting processes
+
+Now we are going to extract some information from the running node on our own!
+
+Let's get the list of all processes in the system:
+
+```elixir
+remote_pids = :rpc.call(node, Process, :list, [])
+```
+
+Wait, but what is this `:rpc.call/4` thing? 🤔
+
+Previously we used `Node.spawn/2` to run a process on the other node
+and we used the `IO` module to get some output. However, now
+we actually care about the resulting value of `Process.list/0`!
+
+We could still use `Node.spawn/2` to send us the results, which
+we would `receive`, but doing that over and over can be quite tedious.
+Fortunately, `:rpc.call/4` does essentially that - evaluates the given
+function on the remote node and returns its result.
+
+Now, let's gather more information about each process 🕵️
+
+```elixir
+processes =
+  Enum.map(remote_pids, fn pid ->
+    # Extract interesting process information
+    info = :rpc.call(node, Process, :info, [pid, [:reductions, :memory, :status]])
+    # The result of inspect(pid) is relative to the node
+    # where it was called, that's why we call it on the remote node
+    pid_inspect = :rpc.call(node, Kernel, :inspect, [pid])
+
+    %{
+      pid: pid_inspect,
+      reductions: info[:reductions],
+      memory: info[:memory],
+      status: info[:status]
+    }
+  end)
+```
+
+Having all that data, we can now visualize it on a scatter plot!
+
+```elixir
+Vl.new(width: 600, height: 400)
+|> Vl.data_from_values(processes)
+|> Vl.mark(:point, tooltip: true)
+|> Vl.encode_field(:x, "reductions", type: :quantitative, scale: [type: "log", base: 10])
+|> Vl.encode_field(:y, "memory", type: :quantitative, scale: [type: "log", base: 10])
+|> Vl.encode_field(:color, "status", type: :nominal)
+|> Vl.encode_field(:tooltip, "pid", type: :nominal)
+```
+
+From the plot we can easily see which processes do the most work
+and take the most memory.
+
+## Tracking memory usage
+
+There's a very simple way to determine current memory usage in the VM:
+
+```elixir
+:erlang.memory()
+```
+
+We can use `Kino.VegaLite.periodically/4` to create a self-updating
+plot of memory usage over time on the remote node!
+
+```elixir
+widget =
+  Vl.new(width: 600, height: 400, padding: 20)
+  |> Vl.repeat(
+    [layer: ["total", "processes", "atom", "binary", "code", "ets"]],
+    Vl.new()
+    |> Vl.mark(:line)
+    |> Vl.encode_field(:x, "iter", type: :quantitative, title: "Measurement")
+    |> Vl.encode_repeat(:y, :layer, type: :quantitative, title: "Memory usage (MB)")
+    |> Vl.encode(:color, datum: [repeat: :layer], type: :nominal)
+  )
+  |> Kino.VegaLite.new()
+  |> tap(&Kino.render/1)
+
+Kino.VegaLite.periodically(widget, 200, 1, fn i ->
+  point =
+    :rpc.call(node, :erlang, :memory, [])
+    |> Enum.map(fn {type, bytes} -> {type, bytes / 1_000_000} end)
+    |> Map.new()
+    |> Map.put(:iter, i)
+
+  Kino.VegaLite.push(widget, point, window: 1000)
+  {:cont, i + 1}
+end)
+```
+
+Unless you connected to a production node, the memory usage
+most likely doesn't change, so to emulate some spikes you can
+run the following code in the remote node:
+
+**Binary usage**
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+x = Enum.reduce(1..10_000, [], fn i, acc ->
+  [String.duplicate("cat", i) | acc]
+end)
+```
+
+**ETS usage**
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+tid = :ets.new(:users, [:set, :public])
+
+for i <- 1..1_000_000 do
+  :ets.insert(tid, {i, "User #{i}"})
+end
+```

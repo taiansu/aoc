@@ -1,0 +1,276 @@
+# Elixir and Livebook
+
+## Introduction
+
+In this notebook, we will explore some unique features when
+using Elixir and Livebook together, such as inputs, autocompletion,
+and more. To get started, execute the cell below so we can get
+the Elixir runtime up and running:
+
+```elixir
+"Hello world"
+```
+
+If you are not familiar with Elixir, there is a fast paced
+introduction to the language in the [Distributed portals with
+Elixir](/explore/notebooks/distributed-portals-with-elixir)
+notebook.
+
+Let's move on.
+
+## Autocompletion
+
+Elixir code cells also support autocompletion by
+pressing <kbd>ctrl</kbd> + <kbd>␣</kbd>. Try it out by
+autocompleting the code below to `System.version()`. First put
+the cursor after the `.` below and
+press <kbd>ctrl</kbd>&nbsp;+&nbsp;<kbd>␣</kbd>:
+
+```elixir
+System.
+```
+
+You should have seen the editor listing many different options,
+which you can use to find `version`. Executing the code will
+return the Elixir version.
+
+Note you can also press <kbd>tab</kbd> to cycle across the completion
+alternatives.
+
+## Imports
+
+You can import Elixir modules to make the imported functions visible
+to all subsequent cells. Usually you want to keep `import`, `alias`, and
+`require` in the first section, as part of the notebook setup.
+
+For instance, you can import `IEx.Helpers` and bring all of the amazing
+conveniences in Elixir's shell to your notebook:
+
+```elixir
+import IEx.Helpers
+```
+
+```elixir
+h(Enum.map())
+```
+
+```elixir
+# Sidenote: http://www.numbat.org.au/thenumbat
+i("I ❤️ Numbats")
+```
+
+## Using packages
+
+Sometimes you need a dependency or two and notebooks are no exception to this.
+In Livebook, you can use [`Mix.install/2`](https://hexdocs.pm/mix/Mix.html#install/2)
+to bring dependencies into your notebook! This approach is especially useful when
+sharing notebooks because everyone will be able to get the same dependencies.
+Let's try this out:
+
+**Note:** compiling dependencies may use a reasonable amount of memory. If you are
+hosting Livebook, make sure you have enough memory allocated to the Livebook
+instance, otherwise the command below will fail.
+
+```elixir
+Mix.install([
+  {:kino, "~> 0.3.1", github: "livebook-dev/kino"}
+])
+```
+
+[Kino](https://github.com/elixir-nx/kino) is a library that
+allows you to control parts of Livebook directly from the Elixir
+code. Let's use it to print a data table:
+
+```elixir
+data = [
+  %{id: 1, name: "Elixir", website: "https://elixir-lang.org"},
+  %{id: 2, name: "Erlang", website: "https://www.erlang.org"}
+]
+
+Kino.DataTable.new(data)
+```
+
+See the [Interactions with Kino](/explore/notebooks/intro-to-kino) notebook
+to learn all the ways you can interact with Livebook from Kino.
+
+It is a good idea to specify versions of the installed packages,
+so that the notebook is easily reproducible later on. The install
+command goes beyond simply installing dependencies, it also caches
+them, consolidates protocols, and more. Check
+[its documentation](https://hexdocs.pm/mix/Mix.html#install/2)
+to learn more.
+
+Finally, keep in mind that `Mix.install/2` can be called only once
+per runtime, so if you need to modify the dependencies, you should
+go to the notebook runtime configuration and **reconnect** the current
+runtime. Let's learn how to do that.
+
+## Runtimes
+
+Livebook has a concept of **runtime**, which in practice is an Elixir node responsible
+for evaluating your code. You can choose the runtime by clicking the "Runtime" icon
+(<i class="ri-livebook-runtime"></i>) on the sidebar (or by using the <kbd>s</kbd> <kbd>r</kbd>
+keyboard shortcut).
+
+By default, a new Elixir node is started (similarly to starting `iex`). You
+can click reconnect whenever you want to discard the current node and start
+a new one.
+
+You can also choose to run inside a *Mix* project (as you would with `iex -S mix`),
+manually *attach* to an existing distributed node, or run your Elixir notebook
+*embedded* within the Livebook source itself.
+
+## More on branches #1
+
+We already mentioned branching sections in
+[Welcome to Livebook](/explore/notebooks/intro-to-livebook),
+but in Elixir terms each branching section:
+
+* runs in a separate process from the main flow
+* copies relevant bindings, imports and alises from the parent
+* updates its process dictionary to mirror the parent
+
+Let's see this in practice:
+
+```elixir
+parent = self()
+```
+
+```elixir
+Process.put(:info, "deal carefully with process dictionaries")
+```
+
+<!-- livebook:{"branch_parent_index":5} -->
+
+## More on branches #2
+
+```elixir
+parent
+```
+
+```elixir
+self()
+```
+
+```elixir
+Process.get(:info)
+```
+
+Since this branch is a separate process, a crash has limited scope:
+
+```elixir
+Process.exit(self(), :kill)
+```
+
+## Inputs
+
+Livebook supports inputs and you read the input values directly
+from your notebook code, using `IO.gets/1`. Let's see an example
+that expects a date in the format `YYYY-MM-DD` and returns if the
+data is valid or not:
+
+```elixir
+date_input = Kino.Input.text("Date")
+```
+
+<!-- livebook:{"reevaluate_automatically":true} -->
+
+```elixir
+# Read the date input, which returns something like "2020-02-30"
+input = Kino.Input.read(date_input)
+
+# And then match on the return value
+case Date.from_iso8601(input) do
+  {:ok, date} ->
+    "We got a valid date: #{inspect(date)}"
+
+  {:error, reason} ->
+    "Oh no, the date is invalid. Reason: #{inspect(reason)}"
+end
+```
+
+The string passed to `IO.gets/1` must be prefixed with the name you
+assigned to the input. The returned string is always appended with
+a newline. This is built-in on top of Erlang's IO protocol and built
+in a way that your notebooks can be exported to Elixir scripts and
+still work!
+
+You may also have noticed something special about the code cell above.
+After you evaluate it for the first time, it says "Reevaluates automatically"
+instead of showing the "Reevaluate" button. This means the cell will
+automatically reevaluate whenever the input changes or whenever a
+previous cell is reevaluated. Give it a try! You can enable this
+behaviour by clicking the Cell Settings icon (<i class="ri-settings-3-line"></i>)
+after focusing a code cell.
+
+There are many other input types available, give them a try to learn
+more.
+
+## Evaluation vs compilation
+
+Livebook automatically shows the execution time of each Elixir
+cell on the bottom-right of the cell. After evaluation, the total
+time can be seen by hovering the green dot.
+
+However, it is important to remember that all code outside of
+a module in Elixir is *evaluated*, and therefore executes much
+slower than code defined inside modules, which are *compiled*.
+
+Let's see an example. Run the cell below:
+
+```elixir
+Enum.reduce(1..1_000_000, 0, fn x, acc -> x + acc end)
+```
+
+We are adding all of the elements in a range by iterating them
+one by one. However, executing it likely takes some reasonable
+amount of time, as the invocation of the `Enum.reduce/3` as well
+as the anonymous function argument are evaluated.
+
+However, what if we move the above to inside a function? Let's do
+that:
+
+```elixir
+defmodule Bench do
+  def sum do
+    Enum.reduce(1..1_000_000, 0, fn x, acc -> x + acc end)
+  end
+end
+```
+
+Now let's try running it:
+
+```elixir
+Bench.sum()
+```
+
+The latest cell should execute orders of magnitude faster than
+the previous `Enum.reduce/3` call. While the call `Bench.sum()`
+itself is evaluated, the one million iterations of `Enum.reduce/3`
+happen inside a module, which is compiled.
+
+If a notebook is performing slower than expected, consider moving
+the bulk of the execution to inside modules.
+
+## Running tests
+
+It is also possible to run tests directly from your notebooks.
+The key is to disable `ExUnit`'s autorun feature and then explicitly
+run the test suite after all test cases have been defined:
+
+```elixir
+ExUnit.start(autorun: false)
+
+defmodule MyTest do
+  use ExUnit.Case, async: true
+
+  test "it works" do
+    assert true
+  end
+end
+
+ExUnit.run()
+```
+
+This helps you follow best practices and ensure the code you write
+behaves as expected!
