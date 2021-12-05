@@ -1,0 +1,106 @@
+# Advant of Code 2021 day 02
+
+## Section
+
+```elixir
+Mix.install([
+  {:kino, github: "livebook-dev/kino"},
+  {:nx, github: "elixir-nx/nx", sparse: "nx"}
+])
+```
+
+## Part 1
+
+```elixir
+input = Kino.Input.textarea("Please paste your input file:")
+```
+
+```elixir
+defmodule Day2 do
+  def move(["forward", d], [x, y]), do: [x + d, y]
+  def move(["up", d], [x, y]), do: [x, y - d]
+  def move(["down", d], [x, y]), do: [x, y + d]
+end
+
+input
+|> Kino.Input.read()
+|> String.split("\n", trim: true)
+|> Enum.map(&String.split(&1, " "))
+|> Enum.map(fn [direction, distance] -> [direction, String.to_integer(distance)] end)
+|> Enum.reduce([0, 0], &Day2.move/2)
+|> then(fn [h, d] -> h * d end)
+```
+
+## Part 2
+
+```elixir
+defmodule Day2 do
+  def move_with_aim(["forward", d], [x, y, aim]), do: [x + d, y + aim * d, aim]
+  def move_with_aim(["up", d], [x, y, aim]), do: [x, y, aim - d]
+  def move_with_aim(["down", d], [x, y, aim]), do: [x, y, aim + d]
+end
+
+input
+|> Kino.Input.read()
+|> String.split("\n", trim: true)
+|> Enum.map(&String.split(&1, " "))
+|> Enum.map(fn [direction, distance] -> [direction, String.to_integer(distance)] end)
+|> Enum.reduce([0, 0, 0], &Day2.move_with_aim/2)
+|> then(fn [h, d, _aim] -> h * d end)
+```
+
+## Part 1 - Nx
+
+```elixir
+input
+|> Kino.Input.read()
+|> String.split("\n", trim: true)
+|> Enum.map(fn line ->
+  [direction, amt] = String.split(line)
+  amt_int = String.to_integer(amt)
+
+  case direction do
+    "forward" -> {amt_int, 0}
+    "up" -> {0, -amt_int}
+    "down" -> {0, amt_int}
+  end
+end)
+|> Enum.unzip()
+|> then(fn {xs, ys} -> Nx.multiply(Nx.sum(Nx.tensor(xs)), Nx.sum(Nx.tensor(ys))) end)
+|> Nx.to_scalar()
+```
+
+## Part 2 - Nx
+
+```elixir
+input
+|> Kino.Input.read()
+|> String.split("\n", trim: true)
+|> Enum.map(fn line ->
+  [direction, amt] = String.split(line)
+  amt_int = String.to_integer(amt)
+
+  case direction do
+    "forward" -> {amt_int, 0}
+    "up" -> {0, -amt_int}
+    "down" -> {0, amt_int}
+  end
+end)
+|> Enum.unzip()
+|> then(fn {forwards, aims} ->
+  aims = Nx.tensor(aims)
+  forwards = Nx.tensor(forwards)
+
+  # Do a cumulative sum of aims to get aims at each forward point
+  n = Nx.size(aims)
+  padding_config = [{n - 1, 0}]
+  window_shape = {n}
+  temporal_aims = Nx.window_sum(aims, window_shape, padding: padding_config)
+
+  depths = Nx.dot(temporal_aims, forwards)
+
+  horizontal = Nx.sum(forwards)
+  Nx.multiply(depths, horizontal)
+end)
+|> Nx.to_scalar()
+```
