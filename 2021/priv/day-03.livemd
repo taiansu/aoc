@@ -1,0 +1,71 @@
+# Advant of Code 2021 day 03
+
+## Setup
+
+```elixir
+Mix.install([
+  {:kino, github: "livebook-dev/kino"},
+  {:nx, github: "elixir-nx/nx", sparse: "nx"}
+])
+```
+
+```elixir
+input = Kino.Input.textarea("Please add your input:")
+```
+
+## Part 1
+
+```elixir
+input
+|> Kino.Input.read()
+|> String.split("\n", trim: true)
+|> Enum.map(&String.split(&1, "", trim: true))
+|> List.zip()
+|> Enum.map(&Tuple.to_list/1)
+|> Enum.map(&Enum.frequencies/1)
+|> Enum.map(&Map.values/1)
+|> Enum.map(fn [zeros, ones] -> if zeros > ones, do: ["0", "1"], else: ["1", "0"] end)
+|> List.zip()
+|> Enum.map(&Tuple.to_list/1)
+|> Enum.map(&Enum.join/1)
+|> Enum.map(&String.to_integer(&1, 2))
+|> Enum.reduce(1, &Kernel.*/2)
+```
+
+## Part 2
+
+```elixir
+defmodule Day3 do
+  def sleve(_bit, list, _flip) when length(list) == 1, do: list
+
+  def sleve(bit, list, flip) do
+    ones =
+      list
+      |> Enum.map(&String.at(&1, bit))
+      |> Enum.count(fn i -> i == "1" end)
+
+    target = if length(list) - ones > ones, do: "0", else: "1"
+    filter_fn = if flip, do: &Enum.reject/2, else: &Enum.filter/2
+    filter_fn.(list, fn i -> String.at(i, bit) == target end)
+  end
+end
+
+data =
+  input
+  |> Kino.Input.read()
+  |> String.split("\n", trim: true)
+
+bits = data |> Enum.at(0) |> String.length()
+
+oxygen =
+  Enum.reduce(0..(bits - 1), data, &Day3.sleve(&1, &2, false))
+  |> Enum.at(0)
+  |> String.to_integer(2)
+
+co2 =
+  Enum.reduce(0..(bits - 1), data, &Day3.sleve(&1, &2, true))
+  |> Enum.at(0)
+  |> String.to_integer(2)
+
+oxygen * co2
+```
