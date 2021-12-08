@@ -55,7 +55,7 @@ defmodule Day4 do
     Enum.any?(lines, &Enum.all?/1)
   end
 
-  def unmark_points(board) do
+  def unmarked_points(board) do
     board
     |> Map.values()
     |> Enum.reject(&elem(&1, 1))
@@ -64,9 +64,9 @@ defmodule Day4 do
     |> Enum.sum()
   end
 
-  def calc(%{boards: [board], draw: draw}) do
+  def score(%{boards: [board], draw: draw}) do
     board
-    |> unmark_points()
+    |> unmarked_points()
     |> then(fn i -> i * String.to_integer(draw) end)
   end
 end
@@ -86,16 +86,16 @@ Enum.reduce_while(draws, %{boards: boards, draw: nil}, fn next, %{boards: boards
     {:cont, %{boards: Enum.map(boards, &Day4.mark(&1, next)), draw: next}}
   end
 end)
-|> then(&Day4.calc/1)
+|> then(&Day4.score/1)
 ```
 
 ## Part 2
 
 ```elixir
 defmodule Day4_Part2 do
-  def calc_last(%{last: board, draw: draw}) do
+  def score(%{last: board, draw: draw}) do
     board
-    |> Day4.unmark_points()
+    |> Day4.unmarked_points()
     |> then(fn i -> i * String.to_integer(draw) end)
   end
 end
@@ -118,5 +118,5 @@ Enum.reduce_while(draws, %{boards: boards, draw: nil, last: nil}, fn next,
       {:cont, %{boards: Enum.map(boards, &Day4.mark(&1, next)), draw: next, last: last}}
   end
 end)
-|> Day4_Part2.calc_last()
+|> Day4_Part2.score()
 ```
