@@ -1,0 +1,122 @@
+# Untitled notebook
+
+## Setup
+
+```elixir
+Mix.install([
+  {:kino, github: "livebook-dev/kino"}
+])
+```
+
+```elixir
+input = Kino.Input.textarea("Please paste your input file:")
+```
+
+## Part 1
+
+```elixir
+defmodule Day4 do
+  def build_board(line) do
+    list = flatten(line)
+
+    for i <- 0..4, j <- 0..4, into: %{} do
+      {[i, j], {Enum.at(list, i * 5 + j), false}}
+    end
+  end
+
+  defp flatten(line) do
+    line
+    |> String.split("\n")
+    |> Enum.flat_map(&String.split(&1, " ", trim: true))
+  end
+
+  def col_marks(board) do
+    for i <- 0..4, do: for(j <- 0..4, do: board |> Map.get([j, i]) |> then(&elem(&1, 1)))
+  end
+
+  def row_marks(board) do
+    for i <- 0..4, do: for(j <- 0..4, do: board |> Map.get([i, j]) |> then(&elem(&1, 1)))
+  end
+
+  def mark(board, draw) do
+    board
+    |> Enum.find(fn {_k, {str, _}} -> str == draw end)
+    |> then(&maybe_update(board, &1))
+  end
+
+  defp maybe_update(board, nil), do: board
+
+  defp maybe_update(board, {key, {draw, _}}) do
+    Map.replace(board, key, {draw, true})
+  end
+
+  def bingo?(board) do
+    lines = row_marks(board) ++ col_marks(board)
+    Enum.any?(lines, &Enum.all?/1)
+  end
+
+  def unmark_points(board) do
+    board
+    |> Map.values()
+    |> Enum.reject(&elem(&1, 1))
+    |> Enum.map(&elem(&1, 0))
+    |> Enum.map(&String.to_integer/1)
+    |> Enum.sum()
+  end
+
+  def calc(%{boards: [board], draw: draw}) do
+    board
+    |> unmark_points()
+    |> then(fn i -> i * String.to_integer(draw) end)
+  end
+end
+
+[draw_line | board_str] =
+  input
+  |> Kino.Input.read()
+  |> String.split("\n\n", trim: true)
+
+draws = String.split(draw_line, ",", trim: true)
+boards = Enum.map(board_str, &Day4.build_board/1)
+
+Enum.reduce_while(draws, %{boards: boards, draw: nil}, fn next, %{boards: boards, draw: draw} ->
+  if board = Enum.find(boards, &Day4.bingo?/1) do
+    {:halt, %{boards: [board], draw: draw}}
+  else
+    {:cont, %{boards: Enum.map(boards, &Day4.mark(&1, next)), draw: next}}
+  end
+end)
+|> then(&Day4.calc/1)
+```
+
+## Part 2
+
+```elixir
+defmodule Day4_Part2 do
+  def calc_last(%{last: board, draw: draw}) do
+    board
+    |> Day4.unmark_points()
+    |> then(fn i -> i * String.to_integer(draw) end)
+  end
+end
+
+Enum.reduce_while(draws, %{boards: boards, draw: nil, last: nil}, fn next,
+                                                                     %{
+                                                                       boards: boards,
+                                                                       draw: draw,
+                                                                       last: last
+                                                                     } ->
+  cond do
+    length(boards) == 1 && Enum.at(boards, 0) |> Day4.bingo?() ->
+      {:halt, %{boards: boards, draw: draw, last: Enum.at(boards, 0)}}
+
+    board = Enum.find(boards, &Day4.bingo?/1) ->
+      rest_boards = Enum.reject(boards, &Day4.bingo?/1)
+      {:cont, %{boards: Enum.map(rest_boards, &Day4.mark(&1, next)), draw: next, last: board}}
+
+    true ->
+      {:cont, %{boards: Enum.map(boards, &Day4.mark(&1, next)), draw: next, last: last}}
+  end
+end)
+|> Day4_Part2.calc_last()
+```
