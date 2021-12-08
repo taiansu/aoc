@@ -1,4 +1,6 @@
-# Untitled notebook
+<!-- vim: syntax=markdown -->
+
+# Advant of Code 2021 day 04
 
 ## Setup
 
@@ -80,12 +82,12 @@ draws = String.split(draw_line, ",", trim: true)
 boards = Enum.map(board_str, &Day4.build_board/1)
 
 Enum.reduce_while(draws, boards, fn draw, boards ->
-  marked_boards = Enum.map(boards, &Day4.mark(&1, draw))
+  boards = Enum.map(boards, &Day4.mark(&1, draw))
 
-  if board = Enum.find(marked_boards, &Day4.bingo?/1) do
+  if board = Enum.find(boards, &Day4.bingo?/1) do
     {:halt, {board, draw}}
   else
-    {:cont, marked_boards}
+    {:cont, boards}
   end
 end)
 |> then(&Day4.score/1)
