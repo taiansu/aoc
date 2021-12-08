@@ -1,0 +1,57 @@
+<!-- vim: syntax=markdown -->
+
+# Advant of Code 2021 day 05
+
+## Setup
+
+```elixir
+Mix.install([
+  {:kino, "~> 0.4.1"},
+  {:vega_lite, "~> 0.1.1"}
+])
+```
+
+```elixir
+input = Kino.Input.textarea("Please type your input:")
+```
+
+```elixir
+lines =
+  input
+  |> Kino.Input.read()
+  |> String.split("\n", trim: true)
+  |> Enum.map(fn line ->
+    line
+    |> String.split([",", " -> "])
+    |> Enum.map(&String.to_integer/1)
+  end)
+```
+
+## Part 1
+
+```elixir
+defmodule Day4 do
+  def to_grid(lines) do
+    Enum.reduce(lines, %{}, &update_line/2)
+  end
+
+  defp update_line([x, y1, x, y2], grid) do
+    Enum.reduce(y1..y2, grid, fn y, grid ->
+      Map.update(grid, {x, y}, 1, &(&1 + 1))
+    end)
+  end
+
+  defp update_line([x1, y, x2, y], grid) do
+    Enum.reduce(x1..x2, grid, fn x, grid ->
+      Map.update(grid, {x, y}, 1, &(&1 + 1))
+    end)
+  end
+
+  defp update_line(_line, grid), do: grid
+end
+
+lines
+|> Day4.to_grid()
+|> Enum.filter(fn {_k, v} -> v > 1 end)
+|> Enum.count()
+```
