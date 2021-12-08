@@ -80,3 +80,27 @@ lines
 |> Enum.filter(fn {_k, v} -> v > 1 end)
 |> Enum.count()
 ```
+
+## Visualization
+
+```elixir
+lines_data =
+  lines
+  |> Enum.flat_map(fn
+    [x1, y, x2, y] -> Enum.zip(x1..x2, Stream.cycle([y]))
+    [x, y1, x, y2] -> Enum.zip(Stream.cycle([x]), y1..y2)
+    [x1, y1, x2, y2] -> Enum.zip(x1..x2, y1..y2)
+  end)
+  |> Enum.map(fn {x, y} -> %{x: x, y: y} end)
+
+alias VegaLite, as: Vl
+
+Vl.new(width: 400, height: 400, background: "white")
+|> Vl.data_from_values(lines_data)
+|> Vl.mark(:rect)
+|> Vl.encode_field(:x, "x", axis: [title: "x"], bin: [maxbins: 50])
+|> Vl.encode_field(:y, "y", axis: [title: "y"], bin: [maxbins: 50])
+# |> Vl.encode(:size, aggregate: :count)
+|> Vl.encode(:color, aggregate: :count)
+|> Vl.config(view: [stroke: :transparent])
+```
