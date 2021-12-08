@@ -1,3 +1,13 @@
+# Advent of Code 2021
+
+- The solutions are under `priv` folder, you can read it via Github interface.
+- This is a livebook project, so to run the code
+   1. clone this repo
+   2. go under `2021` folder
+   3. run: `MIX_ENV=prod mix phx.server`
+   4. open the link in terminal with browser
+   5. open files within `priv` folder
+
 <h1><img src="https://github.com/livebook-dev/livebook/raw/main/static/images/logo-with-text.png" alt="Livebook" width="400"></h1>
 
  [![Hex.pm](https://img.shields.io/hexpm/v/livebook)](https://hex.pm/packages/livebook)
