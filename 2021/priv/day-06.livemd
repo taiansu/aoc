@@ -4,7 +4,8 @@
 
 ```elixir
 Mix.install([
-  {:kino, github: "livebook-dev/kino"}
+  {:kino, github: "livebook-dev/kino"},
+  {:vega_lite, "~> 0.1.1"}
 ])
 ```
 
@@ -55,4 +56,39 @@ amounts = Enum.map(0..8, fn i -> frequencies[i] || 0 end) |> List.to_tuple()
 1..256
 |> Enum.reduce(amounts, fn _, amounts -> Day6Part2.grow(amounts) end)
 |> Tuple.sum()
+```
+
+## Visualization
+
+```elixir
+alias VegaLite, as: Vl
+
+graph =
+  Vl.new(height: 400, width: 400)
+  |> Vl.mark(:line)
+  |> Vl.encode_field(:x, "day", type: :quantitative, scale: [domain: [0, 256]])
+  |> Vl.encode_field(:y, "count", type: :quantitative)
+  # |> Vl.encode_field(:y, "count", type: :quantitative, scale: [domain: [0, 1_700_000_000_000]])
+  # |> Vl.encode_field(:y, "count", type: :quantitative, scale: [type: :log])
+  |> Kino.VegaLite.new()
+  |> Kino.render()
+
+Kino.VegaLite.periodically(
+  graph,
+  # interval
+  100,
+  # accumulator
+  {0, amounts},
+  fn {day, {t0, t1, t2, t3, t4, t5, t6, t7, t8} = t} ->
+    count = Tuple.sum(t)
+    Kino.VegaLite.push(graph, %{day: day, count: count})
+
+    if day < 256 do
+      t = {t1, t2, t3, t4, t5, t6, t7 + t0, t8, t0}
+      {:cont, {day + 1, t}}
+    else
+      :halt
+    end
+  end
+)
 ```
