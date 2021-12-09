@@ -1,0 +1,58 @@
+# Advant of Code 2021 day 06
+
+## Setup
+
+```elixir
+Mix.install([
+  {:kino, github: "livebook-dev/kino"}
+])
+```
+
+```elixir
+input = Kino.Input.textarea("Please type your input:")
+```
+
+```elixir
+fishes =
+  input
+  |> Kino.Input.read()
+  |> String.split([",", "\n"], trim: true)
+  |> Enum.map(&String.to_integer/1)
+```
+
+## Part 1
+
+```elixir
+defmodule Day6 do
+  def grow(0) do
+    [6, 8]
+  end
+
+  def grow(i), do: [i - 1]
+end
+
+days = 80
+
+Enum.reduce(1..days, fishes, fn _, acc ->
+  Enum.flat_map(acc, &Day6.grow/1)
+end)
+|> Enum.count()
+```
+
+## Part2
+
+```elixir
+defmodule Day6Part2 do
+  def grow({prev0, prev1, prev2, prev3, prev4, prev5, prev6, prev7, prev8}) do
+    {prev1, prev2, prev3, prev4, prev5, prev6, prev7 + prev0, prev8, prev0}
+  end
+end
+
+frequencies = Enum.frequencies(fishes)
+
+amounts = Enum.map(0..8, fn i -> frequencies[i] || 0 end) |> List.to_tuple()
+
+1..256
+|> Enum.reduce(amounts, fn _, amounts -> Day6Part2.grow(amounts) end)
+|> Tuple.sum()
+```
