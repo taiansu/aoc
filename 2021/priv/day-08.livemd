@@ -1,0 +1,81 @@
+<!-- vim: syntax=markdown -->
+
+# Advant of Code 2021 day 08
+
+## Setup
+
+```elixir
+Mix.install([
+  {:kino, github: "livebook-dev/kino"}
+])
+```
+
+```elixir
+input = Kino.Input.textarea("Please paste your input here:")
+```
+
+```elixir
+lines =
+  input
+  |> Kino.Input.read()
+  |> String.split([" |\n", " | ", "\n"], trim: true)
+  |> Enum.chunk_every(2)
+  |> Enum.map(fn [input, output] ->
+    {
+      input |> String.split() |> Enum.group_by(&byte_size/1, &String.to_charlist/1),
+      output |> String.split() |> Enum.map(&String.to_charlist/1)
+    }
+  end)
+```
+
+## Part 1
+
+```elixir
+lines
+|> Enum.map(&elem(&1, 1))
+|> Enum.map(&Enum.count(&1, fn i -> length(i) in [2, 4, 3, 7] end))
+|> Enum.sum()
+```
+
+## Part 2
+
+```elixir
+superset = fn numbers, pivot ->
+  Enum.filter(numbers, &match?([], pivot -- &1))
+end
+
+one_stroke_left = fn numbers, pivot ->
+  Enum.filter(numbers, &match?([_], pivot -- &1))
+end
+
+lines
+|> Enum.map(fn {input, output} ->
+  %{
+    2 => [one],
+    3 => [seven],
+    4 => [four],
+    5 => two_three_five,
+    6 => zero_six_nine,
+    7 => [eight]
+  } = input
+
+  [nine] = superset.(zero_six_nine, four)
+  [zero] = superset.(zero_six_nine, seven) -- [nine]
+  [six] = zero_six_nine -- [zero, nine]
+
+  [three] = superset.(two_three_five, seven)
+  [five] = one_stroke_left.(two_three_five, four) -- [three]
+  [two] = two_three_five -- [three, five]
+
+  numbers =
+    [zero, one, two, three, four, five, six, seven, eight, nine]
+    |> Enum.with_index()
+    |> Enum.into(%{}, fn {l, i} -> {Enum.sort(l), i} end)
+
+  output
+  |> Enum.map(&Enum.sort/1)
+  |> Enum.map(&Map.get(numbers, &1))
+  |> Integer.undigits()
+end)
+|> Enum.sum()
+```
