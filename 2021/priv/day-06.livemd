@@ -89,6 +89,7 @@ Kino.VegaLite.periodically(
       t = {t1, t2, t3, t4, t5, t6, t7 + t0, t8, t0}
       {:cont, {day + 1, t}}
     else
+      IO.inspect(count, label: :count)
       :halt
     end
   end
