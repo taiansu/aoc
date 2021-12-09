@@ -1,0 +1,69 @@
+<!-- vim: syntax=markdown -->
+
+# Advant of Code 2021 day 07
+
+## Setup
+
+```elixir
+Mix.install([
+  {:kino, github: "livebook-dev/kino"}
+])
+```
+
+```elixir
+input = Kino.Input.textarea("Please paste your input file:")
+```
+
+```elixir
+crabs =
+  input
+  |> Kino.Input.read()
+  |> String.split([",", "\n"], trim: true)
+  |> Enum.map(&String.to_integer/1)
+```
+
+## Part 1
+
+```elixir
+median =
+  crabs
+  |> Enum.sort()
+  |> Enum.at(crabs |> length() |> div(2))
+
+deviations =
+  crabs
+  |> Enum.map(&((&1 - median) |> abs()))
+  |> Enum.sum()
+```
+
+## Part 2
+
+```elixir
+defmodule Day7 do
+  def step_sum(i, j) do
+    n = abs(j - i)
+    (n + 1) * n / 2
+  end
+end
+
+mean =
+  crabs
+  |> Enum.sum()
+  |> Kernel./(length(crabs))
+  |> IO.inspect(label: :mean)
+
+floor(mean)..ceil(mean)
+|> Enum.map(fn i ->
+  crabs
+  |> Enum.map(&Day7.step_sum(i, &1))
+  |> Enum.sum()
+end)
+|> Enum.min()
+|> trunc()
+
+# deviations =
+#   crabs
+#   |> Enum.map(&(&1 - mean) |> abs())
+#   |> Enum.map(&Day7.step_sum/1)
+#   |> Enum.sum()
+```
