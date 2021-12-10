@@ -47,3 +47,35 @@ grid
 |> Enum.map(&(elem(&1, 1) + 1))
 |> Enum.sum()
 ```
+
+## Part 2
+
+```elixir
+defmodule Recur do
+  def basin(cord, set, grid) do
+    if cord in set || grid[cord] in [nil, 9] do
+      set
+    else
+      set = MapSet.put(set, cord)
+
+      cord
+      |> neighbor_keys()
+      |> Enum.reduce(set, &basin(&1, &2, grid))
+    end
+  end
+
+  def neighbor_keys({i, j}) do
+    [{i, j - 1}, {i, j + 1}, {i - 1, j}, {i + 1, j}]
+  end
+end
+
+low_points =
+  grid
+  |> Enum.filter(&low_point?.(&1, grid))
+  |> Enum.map(&elem(&1, 0))
+  |> Enum.map(&Recur.basin(&1, MapSet.new(), grid))
+  |> Enum.map(&MapSet.size/1)
+  |> Enum.sort(:desc)
+  |> Enum.take(3)
+  |> Enum.product()
+```
