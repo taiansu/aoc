@@ -1,12 +1,11 @@
-<!-- vim: syntax=markdown -->
-
 # Advant of Code 2021 day 09
 
 ## Setup
 
 ```elixir
 Mix.install([
-  {:kino, "~> 0.4.1"}
+  {:kino, "~> 0.4.1"},
+  {:vega_lite, "~> 0.1.2"}
 ])
 ```
 
@@ -73,9 +72,34 @@ low_points =
   grid
   |> Enum.filter(&low_point?.(&1, grid))
   |> Enum.map(&elem(&1, 0))
-  |> Enum.map(&Recur.basin(&1, MapSet.new(), grid))
-  |> Enum.map(&MapSet.size/1)
-  |> Enum.sort(:desc)
-  |> Enum.take(3)
-  |> Enum.product()
+
+low_points
+|> Enum.map(&Recur.basin(&1, MapSet.new(), grid))
+|> Enum.map(&MapSet.size/1)
+|> Enum.sort(:desc)
+|> Enum.take(3)
+|> Enum.product()
+```
+
+## Part 2 - Visualization
+
+```elixir
+alias VegaLite, as: Vl
+
+Vl.new(width: 700, height: 700)
+|> Vl.data_from_values(
+  Enum.map(grid, fn {{x, y}, h} ->
+    %{x: x, y: y, h: h, lowpoint: {x, y} in low_points}
+  end)
+)
+|> Vl.encode_field(:x, "x", type: :quantitative, axis: false)
+|> Vl.encode_field(:y, "y", type: :quantitative, axis: false)
+|> Vl.layers([
+  Vl.new()
+  |> Vl.mark(:circle, size: 60, opacity: 0.8)
+  |> Vl.encode_field(:color, "h", type: :quantitative, scale: [range: ["red", "white", "brown"]]),
+  Vl.new()
+  |> Vl.mark(:text, text: "🔥", size: 15)
+  |> Vl.transform(filter: "datum.lowpoint == true")
+])
 ```
