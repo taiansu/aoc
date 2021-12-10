@@ -24,7 +24,7 @@ grid =
     row
     |> String.split("", trim: true)
     |> Enum.with_index()
-    |> Enum.map(fn {v, j} -> {[i, j], String.to_integer(v)} end)
+    |> Enum.map(fn {v, j} -> {{i, j}, String.to_integer(v)} end)
   end)
   |> Enum.into(%{})
 ```
@@ -32,13 +32,13 @@ grid =
 ## Part 1
 
 ```elixir
-neighbor_keys = fn [i, j] -> [[i, j - 1], [i, j + 1], [i - 1, j], [i + 1, j]] end
+neighbor_keys = fn {i, j} -> [{i, j - 1}, {i, j + 1}, {i - 1, j}, {i + 1, j}] end
 
 low_point? = fn {key, value}, map ->
   key
   |> then(&neighbor_keys.(&1))
   |> Enum.map(&Map.get(map, &1))
-  |> Enum.reject(&is_nil/1)
+  # |> Enum.reject(&is_nil/1) # we don't need to filter
   |> Enum.all?(fn v -> value < v end)
 end
 
