@@ -1,0 +1,101 @@
+<!-- vim: syntax=markdown -->
+
+# Advant of Code 2021 day 10
+
+## Setup
+
+```elixir
+Mix.install([
+  {:kino, "~> 0.4.1"}
+])
+```
+
+```elixir
+input = Kino.Input.textarea("Please paste your input:")
+```
+
+```elixir
+data =
+  input
+  |> Kino.Input.read()
+  |> String.split("\n", trim: true)
+  |> Enum.map(&String.to_charlist/1)
+```
+
+## Part 1
+
+```elixir
+defmodule Day10 do
+  @pair %{
+    ?] => ?[,
+    ?} => ?{,
+    ?> => ?<,
+    ?) => ?(
+  }
+  @points %{
+    ?) => 3,
+    ?] => 57,
+    ?} => 1197,
+    ?> => 25137
+  }
+  def parse(line) do
+    Enum.reduce_while(line, [], fn next, opens ->
+      cond do
+        next in Map.values(@pair) ->
+          {:cont, [next | opens]}
+
+        next in Map.keys(@pair) ->
+          [prev | rest] = opens
+
+          if prev == Map.get(@pair, next) do
+            {:cont, rest}
+          else
+            {:halt, {prev, next}}
+          end
+      end
+    end)
+  end
+
+  def point(char) do
+    Map.get(@points, char)
+  end
+end
+
+data
+|> Enum.map(&Day10.parse/1)
+|> Enum.filter(&is_tuple/1)
+|> Enum.map(&elem(&1, 1))
+|> Enum.map(&Day10.point/1)
+|> Enum.sum()
+```
+
+## Part 2
+
+```elixir
+defmodule Day10Part2 do
+  @points %{
+    ?( => 1,
+    ?[ => 2,
+    ?{ => 3,
+    ?< => 4
+  }
+
+  def calc(line) do
+    Enum.reduce(line, 0, &next/2)
+  end
+
+  defp next(char, score) do
+    score * 5 + Map.get(@points, char)
+  end
+end
+
+incompletes =
+  data
+  |> Enum.map(&Day10.parse/1)
+  |> Enum.filter(&is_list/1)
+
+incompletes
+|> Enum.map(&Day10Part2.calc/1)
+|> Enum.sort()
+|> Enum.at(incompletes |> length |> then(&div(&1, 2)))
+```
