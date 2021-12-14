@@ -1,0 +1,83 @@
+<!-- vim: syntax=markdown -->
+
+# Advant of Code 2021 day 11
+
+## Setup
+
+```elixir
+Mix.install([
+  {:kino, "~> 0.4.1"}
+])
+```
+
+```elixir
+input = Kino.Input.textarea("Input:")
+```
+
+```elixir
+grid =
+  input
+  |> Kino.Input.read()
+  |> String.split("\n", trim: true)
+  |> Enum.map(&String.to_charlist/1)
+  |> Enum.with_index(fn line, i ->
+    Enum.with_index(line, fn energy, j -> {{i, j}, energy - ?0} end)
+  end)
+  |> List.flatten()
+  |> Enum.into(%{})
+```
+
+## Part 1
+
+```elixir
+defmodule Day10 do
+  def step(grid) do
+    flash(Map.keys(grid), grid, MapSet.new())
+  end
+
+  defp flash([cord | rest], grid, flashed) do
+    energy = grid[cord]
+
+    cond do
+      is_nil(energy) or cord in flashed ->
+        flash(rest, grid, flashed)
+
+      energy >= 9 ->
+        cords = neighbors(cord) ++ rest
+        flash(cords, Map.put(grid, cord, 0), MapSet.put(flashed, cord))
+
+      true ->
+        flash(rest, Map.put(grid, cord, energy + 1), flashed)
+    end
+  end
+
+  # match the map_reduce return
+  defp flash([], grid, flashed), do: {MapSet.size(flashed), grid}
+
+  defp neighbors({x, y} = cord) do
+    for col <- Range.new(x - 1, x + 1), row <- Range.new(y - 1, y + 1) do
+      {col, row}
+    end
+    |> then(fn list -> list -- [cord] end)
+  end
+end
+
+1..100
+|> Enum.map_reduce(grid, fn _, grid ->
+  Day10.step(grid)
+end)
+|> elem(0)
+|> Enum.sum()
+```
+
+## Part 2
+
+```elixir
+Stream.iterate(1, &(&1 + 1))
+|> Enum.reduce_while(grid, fn i, grid ->
+  case Day10.step(grid) do
+    {flashes, grid} when map_size(grid) == flashes -> {:halt, i}
+    {_flashes, grid} -> {:cont, grid}
+  end
+end)
+```
