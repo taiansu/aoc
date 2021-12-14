@@ -6,7 +6,8 @@
 
 ```elixir
 Mix.install([
-  {:kino, "~> 0.4.1"}
+  {:kino, "~> 0.4.1"},
+  {:vega_lite, "~> 0.1.2"}
 ])
 ```
 
@@ -80,4 +81,51 @@ Stream.iterate(1, &(&1 + 1))
     {_flashes, grid} -> {:cont, grid}
   end
 end)
+```
+
+## Visualization
+
+```elixir
+alias VegaLite, as: Vl
+
+graph =
+  Vl.new(width: 500, height: 500)
+  # |> Vl.config(view: [stroke: :transparent])
+  |> Vl.mark(:circle, opacity: 0.8)
+  |> Vl.encode_field(:x, "x", type: :quantitative, axis: false)
+  |> Vl.encode_field(:y, "y", type: :quantitative, axis: false)
+  |> Vl.encode_field(:color, "h",
+    type: :quantitative,
+    # scale: [domain: [0, 9], range: ["brown", "red", "yellow"]]
+    # scale: [domain: [0, 9], range: ["purple", "white", "pink"]]
+    scale: [domain: [0, 9], range: ["blue", "white", "yellow"]]
+  )
+  |> Vl.encode_field(:size, "h", type: :quantitative, scale: [domain: [0, 9], range: [20, 400]])
+  |> Vl.encode_field(:tooltip, "h", format_type: "number")
+  |> Kino.VegaLite.new()
+  |> Kino.render()
+
+Kino.VegaLite.periodically(
+  graph,
+  100,
+  grid,
+  fn grid ->
+    {flashes, grid} = Day10.step(grid)
+
+    data =
+      Enum.map(grid, fn {{x, y}, h} ->
+        %{"x" => x, "y" => y, "h" => if(h == 0, do: 9, else: h - 1)}
+      end)
+
+    Kino.VegaLite.clear(graph)
+    Kino.VegaLite.push_many(graph, data)
+
+    if map_size(grid) == flashes do
+      # IO.inspect data, label: :grid
+      :halt
+    else
+      {:cont, grid}
+    end
+  end
+)
 ```
