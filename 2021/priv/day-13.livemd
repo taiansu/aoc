@@ -6,7 +6,8 @@
 
 ```elixir
 Mix.install([
-  {:kino, "~> 0.4.1"}
+  {:kino, "~> 0.4.1"},
+  {:vega_lite, "~> 0.1.1"}
 ])
 ```
 
@@ -15,7 +16,7 @@ input = Kino.Input.textarea("Paste inputs here:")
 ```
 
 ```elixir
-[dots, instructions] =
+[dots, folds] =
   input
   |> Kino.Input.read()
   |> String.split("\n\n")
@@ -26,40 +27,33 @@ dots =
   |> Enum.map(&String.split(&1, ","))
   |> Enum.map(&Enum.map(&1, fn i -> String.to_integer(i) end))
   |> Enum.map(fn [row, col] -> {row, col} end)
+
+folds =
+  Enum.map(folds, fn "fold along " <> fold ->
+    [dir, line] = String.split(fold, "=")
+    {String.to_atom(dir), String.to_integer(line)}
+  end)
 ```
 
 ## Part 1
 
 ```elixir
 defmodule Day13 do
-  def fold("fold along x=" <> line, grid) do
-    grid
-    |> Enum.map(fn {row, col} -> {folder(row, String.to_integer(line)), col} end)
-    |> Enum.reject(&is_nil/1)
-    |> Enum.uniq()
-  end
+  def fold(:x, line), do: fn {x, y} -> {line - abs(x - line), y} end
 
-  def fold("fold along y=" <> line, grid) do
-    grid
-    |> Enum.map(fn {row, col} -> {row, folder(col, String.to_integer(line))} end)
-    |> Enum.reject(&is_nil/1)
-    |> Enum.uniq()
-  end
-
-  defp folder(cord, line) do
-    cond do
-      cord == line -> nil
-      cord > line -> 2 * line - cord
-      true -> cord
-    end
-  end
+  def fold(:y, line), do: fn {x, y} -> {x, line - abs(y - line)} end
 end
 
-instructions
+folds
 |> Enum.take(1)
-|> Enum.reduce(dots, &Day13.fold/2)
+|> Enum.reduce(dots, fn {dir, line}, dots ->
+  Enum.map(dots, Day13.fold(dir, line))
+end)
+|> Enum.uniq()
 |> Enum.count()
 ```
+
+## Part 2
 
 ```elixir
 defmodule Day13Part2 do
@@ -77,7 +71,50 @@ defmodule Day13Part2 do
   end
 end
 
-instructions
-|> Enum.reduce(dots, &Day13.fold/2)
-|> Day13Part2.draw()
+paper =
+  folds
+  |> Enum.reduce(dots, fn {dir, line}, dots ->
+    Enum.map(dots, Day13.fold(dir, line))
+  end)
+  |> Enum.uniq()
+  |> Day13Part2.draw()
+```
+
+## Visualization
+
+> source: https://github.com/miladamilli/Advent_of_Code_2021/blob/master/day13.livemd
+
+```elixir
+alias VegaLite, as: Vl
+
+dots_to_paper = fn dots ->
+  Enum.map(dots, fn {x, y} -> %{x: x, y: -y} end)
+end
+
+graph =
+  Vl.new(width: 800, height: 150)
+  |> Vl.config(view: [stroke: :transparent])
+  |> Vl.mark(:square, opacity: 0.4, size: 200)
+  |> Vl.data_from_values(dots_to_paper.(dots))
+  |> Vl.encode_field(:x, "x", type: :quantitative, axis: false)
+  |> Vl.encode_field(:y, "y", type: :quantitative, axis: false)
+  |> Vl.encode_field(:color, "x",
+    type: :quantitative,
+    scale: [range: ["#27e3c8", "#b25ae7"]],
+    legend: false
+  )
+  |> Kino.VegaLite.new()
+  |> Kino.render()
+
+Enum.reduce(folds, dots, fn {dir, fold}, dots ->
+  dots = Enum.map(dots, Day13.fold(dir, fold))
+
+  Process.sleep(500)
+  Kino.VegaLite.clear(graph)
+  Kino.VegaLite.push_many(graph, dots_to_paper.(dots))
+
+  dots
+end)
+
+:ok
 ```
