@@ -19,47 +19,95 @@ edges =
   input
   |> Kino.Input.read()
   |> String.split("\n", trim: true)
-  |> Enum.flat_map(fn line ->
-    case String.split(line, "-") do
-      [cave1, cave2] when cave1 == "start" or cave2 == "end" ->
-        [{cave1, cave2}]
+  |> Enum.reduce(%{}, fn line, acc ->
+    [left, right] = String.split(line, "-")
+    acc = Map.update(acc, left, [right], &[right | &1])
 
-      [cave1, cave2] ->
-        [{cave1, cave2}, {cave2, cave1}]
+    if left == "start" or right == "end" do
+      acc
+    else
+      Map.update(acc, right, [left], &[left | &1])
     end
   end)
-  |> Enum.group_by(&elem(&1, 0))
 ```
 
 ## Part 1
 
 ```elixir
 defmodule Day12 do
-  def walk({_from, "end"} = next, path, _edges, _seen),
-    # do: [{:ok, Enum.reverse([next | path])}]
-    do: [Enum.reverse([next | path])]
-
-  def walk({_from, "start"}, _path, _edges, _seen), do: []
-
-  def walk({from, to} = next, path, edges, seen) do
-    seen =
-      if from != "start" and String.downcase(from) == from,
-        do: MapSet.put(seen, from),
-        else: seen
-
-    case edges[to] |> Enum.filter(&(elem(&1, 1) not in seen)) do
-      [] ->
-        # [{:error, path}]
-        []
-
-      branches ->
-        Enum.flat_map(branches, &walk(&1, [next | path], edges, seen))
-    end
+  def walk(edges) do
+    walk(edges["start"], ["start"], edges, MapSet.new(), [])
   end
+
+  defp walk(["end" | caves], walked, edges, seen, pathes) do
+    valid_path = Enum.reverse(["end" | walked]) |> Enum.join("-")
+    walk(caves, walked, edges, seen, [valid_path | pathes])
+  end
+
+  defp walk([cave | caves], walked, edges, seen, pathes) do
+    pathes =
+      cond do
+        cave == "start" or cave in seen ->
+          pathes
+
+        lowercased?(cave) ->
+          walk(edges[cave], [cave | walked], edges, MapSet.put(seen, cave), pathes)
+
+        true ->
+          walk(edges[cave], [cave | walked], edges, seen, pathes)
+      end
+
+    walk(caves, walked, edges, seen, pathes)
+  end
+
+  defp walk([], _walked, _edges, _seen, pathes), do: pathes
+
+  defp lowercased?(cave), do: String.downcase(cave, :ascii) == cave
 end
 
-edges["start"]
-|> Enum.flat_map(&Day12.walk(&1, [], edges, MapSet.new()))
-# |> Enum.filter(&(elem(&1, 0) == :ok))
+Day12.walk(edges)
+|> IO.inspect()
+|> Enum.count()
+```
+
+## Part 2
+
+```elixir
+defmodule Day12Part2 do
+  def twice(edges) do
+    walk(edges["start"], ["start"], edges, MapSet.new(), false, [])
+  end
+
+  defp walk(["end" | caves], walked, edges, seen, once?, pathes) do
+    valid_path = Enum.reverse(["end" | walked]) |> Enum.join("-")
+    walk(caves, walked, edges, seen, once?, [valid_path | pathes])
+  end
+
+  defp walk([cave | caves], walked, edges, seen, once?, pathes) do
+    pathes =
+      cond do
+        cave == "start" or (cave in seen and once?) ->
+          pathes
+
+        cave in seen ->
+          walk(edges[cave], [cave | walked], edges, MapSet.put(seen, cave), true, pathes)
+
+        lowercased?(cave) ->
+          walk(edges[cave], [cave | walked], edges, MapSet.put(seen, cave), once?, pathes)
+
+        true ->
+          walk(edges[cave], [cave | walked], edges, seen, once?, pathes)
+      end
+
+    walk(caves, [cave | walked], edges, seen, once?, pathes)
+  end
+
+  defp walk([], _walked, _edges, _seen, _once?, pathes), do: pathes
+
+  defp lowercased?(cave), do: String.downcase(cave, :ascii) == cave
+end
+
+Day12Part2.twice(edges)
+|> IO.inspect()
 |> Enum.count()
 ```
