@@ -1,0 +1,83 @@
+<!-- vim: syntax=markdown -->
+
+# Advant of Code 2021 day 13
+
+## Setup
+
+```elixir
+Mix.install([
+  {:kino, "~> 0.4.1"}
+])
+```
+
+```elixir
+input = Kino.Input.textarea("Paste inputs here:")
+```
+
+```elixir
+[dots, instructions] =
+  input
+  |> Kino.Input.read()
+  |> String.split("\n\n")
+  |> Enum.map(&String.split(&1, "\n", trim: true))
+
+dots =
+  dots
+  |> Enum.map(&String.split(&1, ","))
+  |> Enum.map(&Enum.map(&1, fn i -> String.to_integer(i) end))
+  |> Enum.map(fn [row, col] -> {row, col} end)
+```
+
+## Part 1
+
+```elixir
+defmodule Day13 do
+  def fold("fold along x=" <> line, grid) do
+    grid
+    |> Enum.map(fn {row, col} -> {folder(row, String.to_integer(line)), col} end)
+    |> Enum.reject(&is_nil/1)
+    |> Enum.uniq()
+  end
+
+  def fold("fold along y=" <> line, grid) do
+    grid
+    |> Enum.map(fn {row, col} -> {row, folder(col, String.to_integer(line))} end)
+    |> Enum.reject(&is_nil/1)
+    |> Enum.uniq()
+  end
+
+  defp folder(cord, line) do
+    cond do
+      cord == line -> nil
+      cord > line -> 2 * line - cord
+      true -> cord
+    end
+  end
+end
+
+instructions
+|> Enum.take(1)
+|> Enum.reduce(dots, &Day13.fold/2)
+|> Enum.count()
+```
+
+```elixir
+defmodule Day13Part2 do
+  def draw(grid) do
+    {width, _} = Enum.max_by(grid, &elem(&1, 0))
+    {_, height} = Enum.max_by(grid, &elem(&1, 1))
+
+    for y <- 0..height do
+      for x <- 0..width do
+        if {x, y} in grid, do: "X", else: " "
+      end
+      |> Enum.join(" ")
+      |> IO.puts()
+    end
+  end
+end
+
+instructions
+|> Enum.reduce(dots, &Day13.fold/2)
+|> Day13Part2.draw()
+```
