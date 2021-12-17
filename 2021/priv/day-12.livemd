@@ -1,0 +1,65 @@
+<!-- vim: syntax=markdown -->
+
+# Advant of Code 2021 day 12
+
+## Setup
+
+```elixir
+Mix.install([
+  {:kino, "~> 0.4.1"}
+])
+```
+
+```elixir
+input = Kino.Input.textarea("Paste your input here:")
+```
+
+```elixir
+edges =
+  input
+  |> Kino.Input.read()
+  |> String.split("\n", trim: true)
+  |> Enum.flat_map(fn line ->
+    case String.split(line, "-") do
+      [cave1, cave2] when cave1 == "start" or cave2 == "end" ->
+        [{cave1, cave2}]
+
+      [cave1, cave2] ->
+        [{cave1, cave2}, {cave2, cave1}]
+    end
+  end)
+  |> Enum.group_by(&elem(&1, 0))
+```
+
+## Part 1
+
+```elixir
+defmodule Day12 do
+  def walk({_from, "end"} = next, path, _edges, _seen),
+    # do: [{:ok, Enum.reverse([next | path])}]
+    do: [Enum.reverse([next | path])]
+
+  def walk({_from, "start"}, _path, _edges, _seen), do: []
+
+  def walk({from, to} = next, path, edges, seen) do
+    seen =
+      if from != "start" and String.downcase(from) == from,
+        do: MapSet.put(seen, from),
+        else: seen
+
+    case edges[to] |> Enum.filter(&(elem(&1, 1) not in seen)) do
+      [] ->
+        # [{:error, path}]
+        []
+
+      branches ->
+        Enum.flat_map(branches, &walk(&1, [next | path], edges, seen))
+    end
+  end
+end
+
+edges["start"]
+|> Enum.flat_map(&Day12.walk(&1, [], edges, MapSet.new()))
+# |> Enum.filter(&(elem(&1, 0) == :ok))
+|> Enum.count()
+```
