@@ -1,6 +1,6 @@
 <!-- vim: syntax=markdown -->
 
-# Advant of Code 2021 day 07
+# Advent of Code 2021 day 07
 
 ## Setup
 
