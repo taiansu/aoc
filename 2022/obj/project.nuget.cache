@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "rqvJAGAbzceURtaXuKDJ7AYizPd+mX4QGQleShEA4CZEUtzwEKYRsbjWPmb5gntfAHfoI2I0slbPNhRTAghpvg==",
+  "success": true,
+  "projectFilePath": "/Users/tai/Projects/aoc/2022/2022.fsproj",
+  "expectedPackageFiles": [
+    "/Users/tai/.nuget/packages/fsharp.core/6.0.1/fsharp.core.6.0.1.nupkg.sha512"
+  ],
+  "logs": []
+}
