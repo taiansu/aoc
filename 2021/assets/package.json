@@ -35,7 +35,7 @@
     "topbar": "^1.0.1",
     "unified": "^10.1.0",
     "unist-util-visit": "^4.0.0",
-    "vega": "^5.20.2",
+    "vega": "^5.22.1",
     "vega-embed": "^6.18.1",
     "vega-lite": "^5.1.0"
   },
