@@ -2,9 +2,9 @@ module Aoc.Day2
 
 let data = System.IO.File.ReadAllLines "day2.txt"
 
-let games = data |> Array.map (fun line -> line.Split [| ' ' |])
+type Game = string array
 
-type game = string array
+let games = data |> Array.map (fun line -> line.Split [| ' ' |])
 
 let match_score1 =
     function
@@ -26,7 +26,7 @@ let shape_score1 =
     | [| _; "Z" |] -> 3
     | _ -> 0
 
-let game_score match_score_fn shape_score_fn (game: game) =
+let game_score match_score_fn shape_score_fn (game: Game) =
     match_score_fn game + shape_score_fn game
 
 let first () =
@@ -54,7 +54,3 @@ let shape_score2 =
 
 let second () =
     games |> Array.map (game_score match_score2 shape_score2) |> Array.sum
-
-
-
-// let run () = printfn "data: %A" score
