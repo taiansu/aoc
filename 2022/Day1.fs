@@ -2,30 +2,20 @@ module Aoc.Day1
 
 let data = System.IO.File.ReadAllLines "day1.txt"
 
-type Elf = int array
-type Elfs = Elf array
-
-let appendNum str acc =
-    let num = int str
-    Array.append acc [| num |]
-
-let chunker (acc: Elfs) (calories: string) =
+let chunker (acc: array<int>) (calories: string) =
     match calories with
-    | "" -> Array.append acc [| [||] |]
+    | "" -> Array.append acc [| 0 |]
     | number ->
         let lastIndex = acc.Length - 1
-        let last = acc |> Array.last
-        Array.updateAt lastIndex (appendNum number last) acc
+        let last = Array.last acc
+        Array.updateAt lastIndex (int number + last) acc
 
-let first =
-    fun () -> data |> Array.fold chunker [| [||] |] |> Array.map Array.sum |> Array.max
-
+let first = fun () -> data |> Array.fold chunker [| 0 |] |> Array.max
 
 let second =
     fun () ->
         data
-        |> Array.fold chunker [| [||] |]
-        |> Array.map Array.sum
+        |> Array.fold chunker [| 0 |]
         |> Array.sortDescending
         |> Array.take 3
         |> Array.sum
