@@ -4,16 +4,16 @@ let data = System.IO.File.ReadAllLines "day3.txt"
 
 type Rucksack = array<char>
 
-let findInteract (a: seq<char>) (b: seq<char>) : seq<char> = Set.intersect (set a) (set b)
+let intersect (a: seq<char>) (b: seq<char>) : seq<char> = Set.intersect (set a) (set b)
 
 let findDup: (array<Rucksack> -> char) =
     function
-    | [| a; b |] -> findInteract a b |> Seq.head
+    | [| a; b |] -> intersect a b |> Seq.head
     | n -> failwith $"Invalid findDup input: {n}"
 
 let priority char : int =
     if 'A' <= char && char <= 'Z' then int char - 38
-    else if 'a' <= char && char <= 'z' then int char - 96
+    elif 'a' <= char && char <= 'z' then int char - 96
     else failwith $"Invalid priority input: {char}"
 
 let first () =
@@ -26,7 +26,7 @@ let first () =
 
 let findBadge: (array<Rucksack> -> char) =
     function
-    | [| a; b; c |] -> a |> findInteract b |> findInteract c |> Seq.head
+    | [| a; b; c |] -> a |> intersect b |> intersect c |> Seq.head
     | n -> failwith $"Invalid findBadge input: {n}"
 
 let second () =
