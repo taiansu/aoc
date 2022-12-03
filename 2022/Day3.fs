@@ -2,19 +2,19 @@ module Aoc.Day3
 
 let data = System.IO.File.ReadAllLines "day3.txt"
 
-type rucksack = array<char>
+type Rucksack = array<char>
 
 let findInteract (a: seq<char>) (b: seq<char>) : seq<char> = Set.intersect (set a) (set b)
 
-let findDup: (array<rucksack> -> char) =
+let findDup: (array<Rucksack> -> char) =
     function
     | [| a; b |] -> findInteract a b |> Seq.head
-    | n -> failwith $"Invalid input interact {n}"
+    | n -> failwith $"Invalid findDup input: {n}"
 
 let priority char : int =
     if 'A' <= char && char <= 'Z' then int char - 38
     else if 'a' <= char && char <= 'z' then int char - 96
-    else failwith $"Invalid priority input {char}"
+    else failwith $"Invalid priority input: {char}"
 
 let first () =
     data
@@ -24,10 +24,10 @@ let first () =
     |> Array.map priority
     |> Array.sum
 
-let findBadge: (array<rucksack> -> char) =
+let findBadge: (array<Rucksack> -> char) =
     function
     | [| a; b; c |] -> a |> findInteract b |> findInteract c |> Seq.head
-    | n -> failwith $"Invalid input badge {n}"
+    | n -> failwith $"Invalid findBadge input: {n}"
 
 let second () =
     data
