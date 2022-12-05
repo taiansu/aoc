@@ -7,13 +7,13 @@ type NotePair = Note * Note
 
 let parseNote f (str: string) = str.Split "-" |> Array.map int |> f
 
-let arrayToTwoTuple =
+let arrayToPair =
     function
     | [| a; b |] -> (a, b)
-    | _ -> failwith "Invalid arrayToTwoTuple input"
+    | _ -> failwith "Invalid arrayToPair input"
 
 let splitNote (str: string) =
-    str.Split "-" |> Array.map int |> arrayToTwoTuple
+    str.Split "-" |> Array.map int |> arrayToPair
 
 let splitNotes (fst, snd) = (fst |> splitNote, snd |> splitNote)
 
@@ -28,7 +28,7 @@ let intersect (((xStart, xEnd), (yStart, yEnd)): NotePair) =
 let processedData: array<NotePair> =
     data
     |> Array.map (fun line -> line.Split ",")
-    |> Array.map arrayToTwoTuple
+    |> Array.map arrayToPair
     |> Array.map splitNotes
 
 let first () =
