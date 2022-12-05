@@ -10,3 +10,7 @@ printfn $"Day2 first; {day2First}; Day2 second: {day2Second}"
 let day3First = Aoc.Day3.first ()
 let day3Second = Aoc.Day3.second ()
 printfn $"Day3 first; {day3First}; Day3 second: {day3Second}"
+
+let day4First = Aoc.Day4.first ()
+let day4Second = Aoc.Day4.second ()
+printfn $"Day4 first; {day4First}; Day4 second: {day4Second}"
