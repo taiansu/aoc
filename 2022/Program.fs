@@ -18,3 +18,7 @@ printfn $"Day4 first: {day4First} ; Day4 second: {day4Second}"
 let day5First = Aoc.Day5.first ()
 let day5Second = Aoc.Day5.second ()
 printfn $"Day5 first: {day5First} ; Day5 second: {day5Second}"
+
+let day6First = Aoc.Day6.first ()
+let day6Second = Aoc.Day6.second ()
+printfn $"Day6 first: {day6First} ; Day6 second: {day6Second}"
