@@ -5,22 +5,6 @@ open System.IO
 
 let data = IO.File.ReadAllLines "day7.txt"
 
-// Active Pattern
-let (|Cd|_|) (cmd: string) =
-    if cmd.StartsWith("$ cd ") then Some(cmd[5..]) else None
-
-let (|Dir|_|) (cmd: string) =
-    if cmd.StartsWith("dir ") then Some(cmd[4..]) else None
-
-let (|File|_|) (cmd: string) =
-    let first_char = cmd.[0]
-
-    if '0' <= first_char && first_char <= '9' then
-        let size = cmd.Split(' ', 2, StringSplitOptions.None) |> Array.head
-        Some(int size)
-    else
-        None
-
 type Routes = array<string>
 type Du = Map<string, int>
 
@@ -41,8 +25,26 @@ let private updateDu (size: int) (accu: Du) name =
 let subDir (routes: Routes) (name: string) =
     routes |> Array.append [| name |] |> Array.rev |> Path.Combine
 
+// Active Pattern
+type Line = Line
+
+let (|Cd|_|) (Line, (cmd: string)) =
+    if cmd.StartsWith("$ cd ") then Some(cmd[5..]) else None
+
+let (|Dir|_|) (Line, (cmd: string)) =
+    if cmd.StartsWith("dir ") then Some(cmd[4..]) else None
+
+let (|File|_|) (Line, (cmd: string)) =
+    let first_char = cmd.[0]
+
+    if '0' <= first_char && first_char <= '9' then
+        let size = cmd.Split(' ', 2, StringSplitOptions.None) |> Array.head
+        Some(int size)
+    else
+        None
+
 let run (routes: Routes, du: Du) (line: string) =
-    match line with
+    match (Line, line) with
     | Cd "/" -> ([| "/" |], du)
     | Cd ".." -> (Array.tail routes, du)
     | Cd dir -> (Array.append [| dir |] routes, du)

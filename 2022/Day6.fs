@@ -18,8 +18,6 @@ let findStartMark len data =
     |> Array.findIndex id
     |> (+) len
 
-
-
 let first = fun () -> findStartMark 4 data
 
 let second = fun () -> findStartMark 14 data
