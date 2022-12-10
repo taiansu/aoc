@@ -3,7 +3,7 @@ module Aoc.Day7
 open System
 open System.IO
 
-let data = IO.File.ReadAllLines "day7.txt"
+let data = File.ReadAllLines "day7.txt"
 
 type Routes = array<string>
 type Du = Map<string, int>
