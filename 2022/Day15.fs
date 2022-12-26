@@ -1,6 +1,7 @@
 module Aoc.Day15
 
 open System.IO
+open System.Numerics
 open System.Text.RegularExpressions
 
 let data = File.ReadAllLines "day15.txt"
@@ -70,4 +71,4 @@ let second () =
     |> Set.ofSeq
     |> Set.filter (fun (x, y) -> x >= 0 && x <= range && y >= 0 && y <= range)
     |> Seq.find (possible sensors)
-    |> fun (x, y) -> x * range + y
+    |> fun (x, y) -> (bigint x) * (bigint range) + (bigint y)
