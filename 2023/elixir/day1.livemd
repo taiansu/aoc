@@ -1,0 +1,161 @@
+<!-- livebook:{"persist_outputs":true} -->
+
+# AOC 2023 Day1
+
+```elixir
+Mix.install([
+  {:kino, "~> 0.11.3"}
+])
+```
+
+## Section
+
+<!-- livebook:{"reevaluate_automatically":true} -->
+
+```elixir
+textarea = Kino.Input.textarea("input")
+```
+
+```elixir
+raw_data = Kino.Input.read(textarea)
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+"fouronevhnrz44\neightg1\n4ninejfpd1jmmnnzjdtk5sjfttvgtdqspvmnhfbm\n78seven8\n6pcrrqgbzcspbd\n7sevenseven\n1threeeight66\none1sevensskhdreight\nrninethree6\neight45fourfgfive1\nxdlnbfzxgfmhd4t\n7tf\n8oneldkrfcssbfeight\nfive5ninebvvfv\nsixrhxkzcgfhltrchq3three91\nlnxms8\nthreekv33eightninethree\nfourxrsxhclj99twosevennine7htxdr\n5hdhtdxgktztjdjrhkmlblsevenseven1four8\n25xmvshkbmtkmvqpfhgq8fivefqctjm6two\nnine533two\nsixmbkjzpcxvfive2\nseven3fivevhkpjvfqsfivemfdvlkhhmmvtztjf\n3eight5threefour\nfplrjjznseventwocrv9\nmxqvdb5onesix84fpkzf\n17five6mvxgkkmz2two2mf\nlrqnqfncvvvrrpkfour92xsxfztwonehsb\ndphngmgfhhhcjxmbmqdk3nine54\n34xdbhnbhbmljxc55oneeight\ncpgdcctwothreevlqmk1qpdthree\n977ckpkmx5\n7cx81\nvrtgzhhrsevennzgjqhsqdxcjtm2gsj\ndtkgj89bz5threenine\n256mctgqnjbpr\nsmmthmrnj6threevrndhnrqq4qpnxz\nvfrcvbgpdfjbzhchqmtjgxrmddhmggmqrgs7gxfjffivefour\ntwoeight8two3\nthreedpfour5eightthreebc3\ncsdfivefhgkjfcsvsvqsrbtplhjnine7pqhpvhjqone\nseven3375sevenqgjndftrsh9\n4six1npbnvfdl27hqvdrxztq\ntwopmmblrnhmq6zp1\n34jvrtkfdcmnmblg269six5\nfouroneeight1lpvssjskkjvhpmcb\nkjb6\n8rsix4\nhcprhbhzgjklpql92pntdmxskg\n3766zthm7lts\neight9sixqnkqbfrbrstbxxsixeight\nsjncbhbcrmnmsmf4sixkhscclmrjfjgqgrdtpjqpgdsg3\nzrxtgzscx5lgfcsbqkjnst1\nnineonedzhsqlscgl2xpk\n9eightljkpkkq\nblhstnzdfttwocfjhgsix41hrx6\n5dzsix5\nvhlkone6five79\nnkkm65tfnxhtmzrfpfive\n7hcnzjn4\nngckn5ppcsvjsbstwo\n5qld\nzbgghnineninezkphpf6\n8nine4sevenjlhlzlbztxbcrpc\n3bcdmqxgb\n8xvhfr3foureightwocj\nnine68zvlfs\n8one8xldlrninenine81seven\n7dtvdvgnnqt6\nhtxkfzhxhfmc7631lklzppbtrbfive\nseven89lrxddqtsvvt18\ndnvcsqcmp7fourkrjhndsghjr\nztkqqqdctdeightonefivezdctxbfg7two8\nlptlbtmmkdthreetfcttkknf53gtmvkcgmj9zvsvmsbstznmd\nhbxr1ninefvjkkxkhbrtwo6\ndbmxvpsvp7jdnvsdnlv\nseventhree1\nseven1oneseven\nseventhreejcdvcgfthzlvl8eighttwo1\n2fqkkgsvpjv9ninesix\nxfmkdtxk2two\n6fourfive\nhpghf2cfgrmb34\n714\nnineonemrzxsmtwo28\nllgnrpcdxt4eightninedl9\npdvhcvpmceightpfjpgvbfnrhh9\ngvzzrvhmj464\n592eightmvkdnjqthreedtcldng9\n77nineonethreerqnrgczsn4hhdnpbtkxthree\nfour78zrqfourtwo\n5chnktntwoninezqzfhthreegpmkvrsbfs\nmpgvbnzldvbhchthreeseven4cvone\nnmfbdpeightfour9fiveqnnmbfsheightsix\nonexrjdhtmsdkssrgghlfsx5fourtwofive\n5seven3zfdnqxqqdgqcphhjctjhddfggrfstqrb7\nhcpcvfllseven8\nqhpmcthree1sixdjkg\n32mgqbmsn6five4c1\nseven78\nfour8three\n9seven5five6\nfive67\ntwopqsjvpfxdone81gsztrlxrhx5\n9bctqg\njqkhxlnvfhninepzmvfmm5\nfglgdrnlnqthreeeightfoursevenseven368\nnineeightjvzdqnpnzf86qpffrfsp6\n34kckxkrq\nsixppr854\noneeight6\n7onerhqgbzheightpvxjnsfdnmfive\n68seven3\n56ninedgzqmlvjp22\nsix69nine7threethree\n6oneightskl\n5six9four5twoone\nfivefourfourhvgfqrqst99\n2qvvnrbvjhs8dstfpfnineldkpnkskz7\n41jrhj9nfeightonecqrdg\n7onefour8\nrxtdz5gbxbvdxbbpghfvljdbknqsqgtmmgrhf\n79kftqmdnbj\n1cf4\nthreekdrpvtsdtrdfzxtvqh3\nzxcnsfkvfivezhcknlhcqfour9159\ntwodjdbsfive7two\n47bnvbkseven4one7\nnleightwo7\ntwofive5gptl3nine6twopngsq\neightqn32seveneightqfrfmsfgqhfourvrgdkfnxn\nsixfivefivepnxb1jqzx4lk5\nthree97onebssix2\nfivebvkhcmt3one6twonegf\nxzrv997pfhxsblfive8\n5nptkzbsixxgpmrkxponegnnqfqtgvl4\n7mvxkfkjkxninesevenxjtrjxbj\njfloneightfivetwo7flmf\nqpncksix1fourthreesixtwo7fcjjdx\n17nineninesixhpbh\nfour88ngtbtfcqfr6tjqbqhrktf\nvgtvfsftvljjkxnsevenltszqrgm6cgxjlqsgcqonelcdjv\n6tznfmdzxkt\nnineoneninefive2oneightdp\nkmjjzvblthreethreefour1dhrsk2pfjx\nfourfive6six2\nrmqzgfivenineeightnine6qqnxclq\nfourninefive3kgeightonerfxsr\nfour7qjpkrfxsvt31seventhree\nvqgqgk69twoseven\nqfxvmhk9\nsix1b69\nvcbmbfjrdpnfour9\ntwoclpjtndvxj8fpxblseven\n28xrggnqqttk544\n39hgczgvjhvs31fivesix\nqstz85sevennine\nddc5lqftnmhldv4dxfvhrxcnltr61\nninedhhmpzntqlninef7\n63fourhznh\nthree39foureight\n4zlfzjfrqsixjzb\n2sfiveeight\nfourfivefive46\nfglfbbseven7445three5mfgrmkfgdc\n8sg\n128three3seven\nfive4threehrggrjgjpninetwo5eight\n3hjnmvhtfxpzmdt7224txvnpnjsjf6\nbeightwobhz86fdhsthreeqjxccxhjvk45r\nlgd2sixf7\n6ninefour\nhmhfeightsevenvlgdrm3five6kkjblfqbjsnxtcxrpg\njxvh5jjxvfdeightwon\n1qfqdqxvtsztkkjxqz\n1onenineppgphdtt\nfourrppqprfmlpxbvdhpltfive1qfzr\nxhqkzhchcmfnrpstgntwobrntnm4\nnplmsixmx5six\ndtvrlxzdb4clddlfivefour4one\n67cnqshcbgsix54two8\n7s\nfourfourhbv28six91\nseven6twospmcsixcvmzfj9nine1\n1five1bphjprtm2twoxfslkqh9four\neight7bfzdbfccfl7\n8eightl\nklfpjslgdmgbxlftszdltn1\neightseven5threeseven\nonenjvvqsfhgfhmtv6f" <> ...
+```
+
+## Part1
+
+```elixir
+defmodule Part1 do
+  def first_digit(string) do
+    string
+    |> String.split("")
+    |> Enum.reduce_while("", fn letter, _acc ->
+      if Regex.match?(~r/\d/, letter) do
+        {:halt, letter}
+      else
+        {:cont, ""}
+      end
+    end)
+  end
+
+  def last_digit(string) do
+    string
+    |> String.split("")
+    |> Enum.reverse()
+    |> Enum.reduce_while("", fn letter, _acc ->
+      if Regex.match?(~r/\d/, letter) do
+        {:halt, letter}
+      else
+        {:cont, ""}
+      end
+    end)
+  end
+end
+
+raw_data
+|> String.split("\n")
+|> Enum.map(fn string ->
+  Part1.first_digit(string) <> Part1.last_digit(string)
+end)
+|> Enum.map(&String.to_integer/1)
+|> Enum.sum()
+|> IO.inspect()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+54940
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+54940
+```
+
+## Part2
+
+```elixir
+defmodule Part2 do
+  @digit %{
+    "one" => "1",
+    "two" => "2",
+    "three" => "3",
+    "four" => "4",
+    "five" => "5",
+    "six" => "6",
+    "seven" => "7",
+    "eight" => "8",
+    "nine" => "9"
+  }
+
+  @digit_regex Map.keys(@digit) |> Enum.join("|") |> then(&"(#{&1})") |> Regex.compile!()
+
+  def first_digit(string) do
+    string
+    |> String.split("")
+    |> Enum.reduce_while("", fn letter, acc ->
+      cond do
+        Regex.match?(~r/\d/, letter) ->
+          {:halt, letter}
+
+        matched = Regex.run(@digit_regex, acc <> letter, capture: :all_but_first) ->
+          number = matched |> List.first() |> then(&Map.get(@digit, &1))
+          {:halt, number}
+
+        true ->
+          {:cont, acc <> letter}
+      end
+    end)
+  end
+
+  def last_digit(string) do
+    string
+    |> String.split("")
+    |> Enum.reverse()
+    |> Enum.reduce_while("", fn letter, acc ->
+      cond do
+        Regex.match?(~r/\d/, letter) ->
+          {:halt, letter}
+
+        matched = Regex.run(@digit_regex, letter <> acc, capture: :all_but_first) ->
+          number = matched |> List.first() |> then(&Map.get(@digit, &1))
+          {:halt, number}
+
+        true ->
+          {:cont, letter <> acc}
+      end
+    end)
+  end
+end
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+{:module, Part2, <<70, 79, 82, 49, 0, 0, 15, ...>>, {:last_digit, 1}}
+```
+
+<!-- livebook:{"reevaluate_automatically":true} -->
+
+```elixir
+data =
+  raw_data
+  |> String.split("\n")
+
+data
+|> Enum.map(fn w -> Part2.first_digit(w) <> Part2.last_digit(w) end)
+|> Enum.map(&String.to_integer/1)
+|> Enum.sum()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+54208
+```
