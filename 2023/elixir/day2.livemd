@@ -1,0 +1,109 @@
+# AOC 2023 day 2
+
+```elixir
+Mix.install([
+  {:kino, "~> 0.11.3"}
+])
+```
+
+## Section
+
+```elixir
+textarea = Kino.Input.textarea("input")
+```
+
+<!-- livebook:{"reevaluate_automatically":true} -->
+
+```elixir
+raw_data = Kino.Input.read(textarea)
+data = String.split(raw_data, "\n")
+```
+
+```elixir
+defmodule Day2 do
+  def parse_game(line) do
+    line
+    |> String.split(": ")
+    |> then(fn [game, sets] ->
+      {game_index(game), parse_sets(sets)}
+    end)
+  end
+
+  def game_index(game_name) do
+    game_name
+    |> then(&Regex.run(~r/(\d+)/, &1, capture: :all_but_first))
+    |> then(fn [i] -> String.to_integer(i) end)
+  end
+
+  def parse_sets(sets) do
+    sets
+    |> String.split("; ")
+    |> Enum.map(&parse_set/1)
+  end
+
+  def parse_set(set) do
+    set
+    |> String.split(", ")
+    |> Enum.map(&parse_colors/1)
+    |> Enum.into(%{})
+  end
+
+  def parse_colors(color) do
+    color
+    |> String.split(" ")
+    |> then(fn [n, c] -> {c, String.to_integer(n)} end)
+  end
+end
+```
+
+## Part 1
+
+```elixir
+defmodule Part1 do
+  def valid_game?({_, sets}) do
+    sets
+    |> Enum.all?(fn set ->
+      Map.get(set, "red", 0) <= 12 &&
+        Map.get(set, "green", 0) <= 13 &&
+        Map.get(set, "blue", 0) <= 14
+    end)
+  end
+end
+
+data
+|> Enum.map(&Day2.parse_game/1)
+|> Enum.filter(&Part1.valid_game?/1)
+# |> IO.inspect()
+|> Enum.map(&elem(&1, 0))
+|> Enum.sum()
+```
+
+## Part2
+
+```elixir
+defmodule Part2 do
+  @empty %{"red" => 0, "green" => 0, "blue" => 0}
+
+  def minimals({_, sets}) do
+    Enum.reduce(sets, @empty, &merge_reducer/2)
+  end
+
+  defp merge_reducer(acc, set) do
+    Map.merge(acc, set, fn _k, v1, v2 -> max(v1, v2) end)
+  end
+
+  def min(key, map1, map2) do
+    [map1, map2]
+    |> Enum.map(&Map.get(&1, key))
+    |> Enum.min()
+  end
+end
+
+data
+|> Enum.map(&Day2.parse_game/1)
+|> Enum.map(&Part2.minimals/1)
+|> Enum.map(&Map.values/1)
+|> Enum.map(&Enum.product/1)
+|> Enum.sum()
+|> dbg()
+```
