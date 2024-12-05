@@ -1029,10 +1029,6 @@ input
 ## Part2
 
 ```elixir
-x = String.split(input, "\n")
-y = Enum.reject(x, &(&1 == ""))
-z = Enum.map(y, &String.split(&1, "   "))
-
 input
 |> String.split("\n")
 |> Enum.reject(&(&1 == ""))
