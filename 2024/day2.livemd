@@ -1007,14 +1007,31 @@ input = """
 """
 ```
 
+```elixir
+# input = """
+# 7 6 4 2 1
+# 1 2 7 8 9
+# 9 7 6 2 1
+# 1 3 2 4 5
+# 8 6 4 4 1
+# 1 3 6 7 9
+# """
+```
+
+```elixir
+data =
+  input
+  |> String.split("\n")
+  |> Enum.reject(&(&1 == ""))
+  |> Enum.map(&String.split(&1, " "))
+  |> Enum.map(fn l -> Enum.map(l, &String.to_integer(&1)) end)
+```
+
 ## Part1
 
 ```elixir
-input
-|> String.split("\n")
-|> Enum.reject(&(&1 == ""))
-|> Enum.map(&String.split(&1, " "))
-|> Enum.map(fn l -> Enum.map(l, &String.to_integer(&1)) end)
+data
+|> IO.inspect(label: :step1)
 |> Enum.map(fn l -> 
   {
     l,
@@ -1022,20 +1039,49 @@ input
     l |> Enum.uniq() |> Enum.sort(:desc),
   }
 end)
-|> Enum.map(fn {lsf, acc, desc} -> 
-  {lsf == acc or lsf == desc, lsf}
+|> Enum.filter(fn {lsf, acc, desc} -> 
+  lsf == acc or lsf == desc
 end)
-|> Enum.filter(fn {b, _} -> b end)
-|> Enum.map(fn {_, l} -> 
-    Enum.chunk_every(l, 2, 1, :discard)
-  end)
-|> Enum.map(fn l -> 
-    Enum.all?(l, fn [n1, n2] -> 1 <= abs(n1 - n2) && abs(n1 - n2) <= 3 end)
-  end)
+|> Enum.map(&elem(&1, 0))
+|> Enum.map(&Enum.chunk_every(&1, 2, 1, :discard))
+|> Enum.map(&Enum.all?(&1, fn [n1, n2] -> 1 <= abs(n1 - n2) && abs(n1 - n2) <= 3 end))
 |> Enum.count(& &1)
 
+```
 
+## Part2
 
+```elixir
+defmodule Aoc do
 
+  def check_twice(list) do
+    safe?(list) || (list |> expand_sublist() |> Enum.any?(&safe?/1))
+  end
+  
+  def safe?(list) do
+    acc_or_desc(list) && diff_in_range(list)
+  end
 
+  defp acc_or_desc(list) do
+    acc = list |> Enum.uniq() |> Enum.sort()
+    desc = list |> Enum.uniq() |> Enum.sort(:desc)
+    list == acc || list == desc
+  end
+
+  defp diff_in_range(list) do
+    list
+    |> Enum.chunk_every(2, 1, :discard)
+    |> Enum.all?(fn [n1, n2] -> 1 <= abs(n1 - n2) && abs(n1 - n2) <= 3 end)
+  end
+
+  # 展開 [1, 2, 3] -> [[1, 2], [1, 3], [2, 3]]
+  defp expand_sublist(list) do
+    Enum.map(0..(length(list) - 1), fn i ->
+      List.pop_at(list, i) |> elem(1)
+    end)
+  end
+end
+
+data
+|> Enum.count(&Aoc.check_twice/1)
 ```
