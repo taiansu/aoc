@@ -1,0 +1,47 @@
+# 2024 Day3
+
+```elixir
+Mix.install([
+   {:kino, "~> 0.14.2"}
+])
+```
+
+## Section
+
+```elixir
+kino_input = Kino.Input.textarea("Enter the input")
+```
+
+```elixir
+input = Kino.Input.read(kino_input)
+```
+
+```elixir
+input
+|> then(&Regex.scan(~r/mul\((\d+),(\d+)\)/, &1, capture: :all_but_first))
+|> Enum.map(fn [x, y] -> String.to_integer(x) * String.to_integer(y) end)
+|> Enum.sum()
+```
+
+## Part2
+
+```elixir
+defmodule Day3 do
+  def number_or_trigger(["", "", "do()"]), do: :do
+  def number_or_trigger(["", "", "", "don't()"]), do: :dont
+  def number_or_trigger([x, y]), do: String.to_integer(x) * String.to_integer(y) 
+
+  def calc(:do, {acc, _}), do: {acc, true}
+  def calc(:dont, {acc, _}), do: {acc, false}
+  def calc(number, {acc, true}), do: {acc + number, true}
+  def calc(_number, {acc, false}), do: {acc, false}
+end
+
+rgx = ~r/mul\((\d+),(\d+)\)|(do\(\))|(don't\(\))/
+
+input
+|> then(&Regex.scan(rgx, &1, capture: :all_but_first))
+|> Enum.map(&Day3.number_or_trigger/1)
+|> Enum.reduce({0, true}, &Day3.calc/2)
+|> elem(0)
+```
