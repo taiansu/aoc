@@ -1,4 +1,4 @@
-# 2024 Day3
+# AOC 2024 Day3
 
 ```elixir
 Mix.install([
