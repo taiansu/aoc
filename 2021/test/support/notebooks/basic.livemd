@@ -1,9 +1,0 @@
-# Notebook
-
-## First section
-
-One Elixir cell below.
-
-```elixir
-length([1, 2, 3])
-```
